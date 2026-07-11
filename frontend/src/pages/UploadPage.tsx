@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { useDropzone } from 'react-dropzone'
 import { CheckCircle2, FileText, Loader2, Upload, X } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -17,6 +18,7 @@ function formatBytes(bytes: number): string {
 
 export default function UploadPage() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [file, setFile]         = useState<File | null>(null)
   const [progress, setProgress] = useState(0)
   const [uploading, setUploading] = useState(false)
@@ -39,6 +41,9 @@ export default function UploadPage() {
       setDone(true)
       setReportId(report.id)
       toast.success('Report uploaded successfully!')
+      // Invalidate dashboard and reports so they reflect the new upload
+      void queryClient.invalidateQueries({ queryKey: ['dashboard'] })
+      void queryClient.invalidateQueries({ queryKey: ['reports'] })
     } catch {
       toast.error('Upload failed. Please try again.')
     } finally {

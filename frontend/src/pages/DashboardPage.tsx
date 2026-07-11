@@ -58,6 +58,7 @@ export default function DashboardPage() {
   const { data: stats, isLoading } = useQuery<DashboardStats>({
     queryKey: ['dashboard'],
     queryFn: chatService.getDashboard,
+    staleTime: 30_000, // 30 s — always fresh when navigating back
   })
 
   if (isLoading) return (
