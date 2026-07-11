@@ -83,14 +83,16 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------ #
     # AI / LLM  (integrated in future phases)
     # ------------------------------------------------------------------ #
-    LLM_PROVIDER: str = "ollama"          # "ollama" | "openai"
-    OLLAMA_BASE_URL: str = "http://localhost:11434"
-    OLLAMA_MODEL: str = "llama3"
-    OPENAI_API_KEY: str = ""
-    OPENAI_MODEL: str = "gpt-4o-mini"
-
-    # Embedding model (Phase 4)
-    EMBEDDING_MODEL: str = "allenai-specter"
+    # Gemini AI  (Phase 5)
+    # ------------------------------------------------------------------ #
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-2.5-flash"
+    GEMINI_TEMPERATURE: float = 0.3      # Lower = more factual, less creative
+    GEMINI_MAX_TOKENS: int = 4096
+    GEMINI_TOP_P: float = 0.95
+    GEMINI_TOP_K: int = 40
+    GEMINI_TIMEOUT: int = 60             # seconds per request
+    GEMINI_MAX_RETRIES: int = 2          # retries on transient errors
 
     # ------------------------------------------------------------------ #
     # Security  (Phase 8)
