@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Activity, FileText, Home, LogOut, Menu, Upload, User, X } from 'lucide-react'
-import { clsx } from 'clsx'
+import { Activity, ChevronDown, FileText, Home, LogOut, Menu, Upload, User, X } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
 const NAV = [
@@ -17,33 +16,32 @@ export default function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const sidebarContent = (
-    <aside
-      className={clsx(
-        'flex flex-col h-full',
-        // Dark MongoDB teal sidebar
-        'bg-[#001e2b] text-white',
-      )}
-    >
-      {/* ── Logo ─────────────────────────────── */}
-      <div className="flex items-center gap-3 px-4 py-5 border-b border-[#1c2d38]">
-        <div className="w-9 h-9 rounded-[8px] bg-[#00ed64] flex items-center justify-center flex-shrink-0">
-          <Activity className="w-5 h-5 text-[#001e2b]" />
+    <aside className="flex flex-col h-full" style={{ backgroundColor: '#071C26' }}>
+      {/* Logo */}
+      <div
+        className="flex items-center gap-3 px-5 border-b flex-shrink-0"
+        style={{ height: '92px', borderColor: '#0D2C37' }}
+      >
+        <div
+          className="w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0"
+          style={{ backgroundColor: '#16A34A' }}
+        >
+          <Activity strokeWidth={2} className="w-[22px] h-[22px] text-white" />
         </div>
         <div className="sidebar-label overflow-hidden">
-          <p className="text-sm font-bold text-white leading-tight">SehatSaathi</p>
-          <p className="text-[11px] text-[#a8b3bc]">AI Medical Assistant</p>
+          <p className="font-bold text-white leading-tight" style={{ fontSize: '24px' }}>SehatSaathi</p>
+          <p className="text-[#CBD5E1]" style={{ fontSize: '15px', opacity: 0.8 }}>AI Medical Assistant</p>
         </div>
-        {/* Mobile close */}
         <button
           onClick={() => setMobileOpen(false)}
-          className="ml-auto text-[#a8b3bc] hover:text-white md:hidden"
+          className="ml-auto text-[#CBD5E1] hover:text-white md:hidden"
         >
           <X className="w-5 h-5" />
         </button>
       </div>
 
-      {/* ── Navigation ───────────────────────── */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-0.5">
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto py-5 px-3 flex flex-col" style={{ gap: '4px' }}>
         {NAV.map(({ to, icon: Icon, label }) => {
           const active = pathname.startsWith(to)
           return (
@@ -51,38 +49,48 @@ export default function Sidebar() {
               key={to}
               to={to}
               onClick={() => setMobileOpen(false)}
-              className={clsx(
-                'flex items-center gap-3 rounded-[8px] px-3 py-2 text-sm font-medium transition-colors',
-                active
-                  ? 'bg-[#00ed64] text-[#001e2b]'
-                  : 'text-[#a8b3bc] hover:bg-[#1c2d38] hover:text-white',
-              )}
+              className="flex items-center rounded-[14px] font-medium transition-all duration-[250ms] sidebar-label"
+              style={{
+                gap: '14px',
+                minHeight: '54px',
+                padding: '0 20px',
+                fontSize: '16px',
+                background: active ? 'linear-gradient(to right, #16A34A, #15803D)' : 'transparent',
+                color: active ? '#ffffff' : '#CBD5E1',
+              }}
+              onMouseEnter={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.backgroundColor = '#0D2C37' }}
+              onMouseLeave={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.backgroundColor = 'transparent' }}
             >
-              <Icon className="w-5 h-5 flex-shrink-0" />
+              <Icon strokeWidth={2} className="w-[22px] h-[22px] flex-shrink-0" />
               <span className="sidebar-label">{label}</span>
             </Link>
           )
         })}
       </nav>
 
-      {/* ── User + Logout ─────────────────────── */}
-      <div className="px-3 py-4 border-t border-[#1c2d38] space-y-1">
-        <div className="flex items-center gap-3 px-3 py-2">
-          <div className="w-8 h-8 rounded-full bg-[#00ed64] flex items-center justify-center flex-shrink-0">
-            <span className="text-xs font-bold text-[#001e2b]">
-              {user?.username?.[0]?.toUpperCase() ?? 'U'}
-            </span>
+      {/* User + Sign out */}
+      <div className="px-3 pb-5 border-t flex flex-col" style={{ borderColor: '#0D2C37', gap: '4px', paddingTop: '16px' }}>
+        <div className="flex items-center gap-3 px-5 py-3">
+          <div
+            className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ backgroundColor: '#16A34A' }}
+          >
+            <span className="text-sm font-bold text-white">{user?.username?.[0]?.toUpperCase() ?? 'U'}</span>
           </div>
           <div className="sidebar-label min-w-0 flex-1">
-            <p className="text-sm font-medium text-white truncate">{user?.username}</p>
-            <p className="text-[11px] text-[#a8b3bc] truncate">{user?.email}</p>
+            <p className="text-sm font-semibold text-white truncate">{user?.username}</p>
+            <p className="text-[#CBD5E1] truncate" style={{ fontSize: '13px' }}>{user?.email}</p>
           </div>
+          <ChevronDown strokeWidth={2} className="w-4 h-4 text-[#CBD5E1] sidebar-label flex-shrink-0" />
         </div>
         <button
           onClick={() => logout()}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-[8px] text-sm text-[#a8b3bc] hover:bg-[#1c2d38] hover:text-white transition-colors"
+          className="w-full flex items-center rounded-[14px] text-[#CBD5E1] hover:text-white transition-all duration-[250ms] sidebar-label"
+          style={{ gap: '14px', minHeight: '54px', padding: '0 20px', fontSize: '16px', fontWeight: 500 }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#0D2C37' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent' }}
         >
-          <LogOut className="w-4 h-4 flex-shrink-0" />
+          <LogOut strokeWidth={2} className="w-[22px] h-[22px] flex-shrink-0" />
           <span className="sidebar-label">Sign out</span>
         </button>
       </div>
@@ -91,28 +99,28 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* ── Desktop sidebar ──────────────────────────── */}
-      <div className="hidden sm:flex fixed inset-y-0 left-0 z-30 transition-all duration-300"
-        style={{ width: 'var(--sidebar-w, 240px)' }}>
+      {/* Desktop sidebar */}
+      <div
+        className="hidden sm:flex fixed inset-y-0 left-0 z-30 transition-all duration-300"
+        style={{ width: 'var(--sidebar-w, 260px)' }}
+      >
         {sidebarContent}
       </div>
 
-      {/* ── Mobile hamburger ─────────────────────────── */}
+      {/* Mobile hamburger */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="sm:hidden fixed top-4 left-4 z-40 w-9 h-9 flex items-center justify-center rounded-[8px] bg-[#001e2b] text-white shadow-lg"
+        className="sm:hidden fixed top-4 left-4 z-40 w-10 h-10 flex items-center justify-center rounded-[14px] text-white shadow-lg"
+        style={{ backgroundColor: '#071C26' }}
       >
         <Menu className="w-5 h-5" />
       </button>
 
-      {/* ── Mobile overlay + drawer ──────────────────── */}
+      {/* Mobile overlay + drawer */}
       {mobileOpen && (
         <div className="sm:hidden fixed inset-0 z-40 flex">
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setMobileOpen(false)}
-          />
-          <div className="relative w-64 flex flex-col shadow-xl z-50">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
+          <div className="relative w-[260px] flex flex-col shadow-xl z-50">
             {sidebarContent}
           </div>
         </div>
