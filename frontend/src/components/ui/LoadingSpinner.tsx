@@ -3,8 +3,12 @@ import { clsx } from 'clsx'
 type Size  = 'sm' | 'md' | 'lg'
 type Color = 'primary' | 'white' | 'slate'
 
-const SIZES: Record<Size,  string> = { sm: 'h-4 w-4', md: 'h-6 w-6', lg: 'h-10 w-10' }
-const COLORS: Record<Color, string> = { primary: 'text-green-600', white: 'text-white', slate: 'text-slate-400' }
+const SIZES:  Record<Size,  string> = { sm: 'h-4 w-4', md: 'h-6 w-6', lg: 'h-10 w-10' }
+const COLORS: Record<Color, string> = {
+  primary: 'text-[#00ed64]',
+  white:   'text-white',
+  slate:   'text-[#a8b3bc]',
+}
 
 interface Props { size?: Size; color?: Color; className?: string }
 

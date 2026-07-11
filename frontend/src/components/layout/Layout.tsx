@@ -3,10 +3,16 @@ import Sidebar from './Sidebar'
 
 export default function Layout() {
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen" style={{ backgroundColor: '#f9fbfa' }}>
       <Sidebar />
-      <main className="flex-1 ml-64 min-w-0">
-        <div className="max-w-7xl mx-auto p-6 lg:p-8">
+      {/* Offset for sidebar on sm+ screens */}
+      <main
+        className="flex-1 min-w-0 transition-all duration-300"
+        style={{ marginLeft: 'clamp(0px, var(--sidebar-w, 240px), 240px)' }}
+      >
+        {/* On mobile, add top padding for the hamburger button */}
+        <div className="sm:hidden h-14" />
+        <div className="page-wrapper">
           <Outlet />
         </div>
       </main>

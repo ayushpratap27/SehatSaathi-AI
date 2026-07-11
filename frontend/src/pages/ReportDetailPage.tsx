@@ -23,94 +23,114 @@ export default function ReportDetailPage() {
     retry: false,
   })
 
-  if (repLoading) return <div className="flex items-center justify-center h-64"><LoadingSpinner size="lg" /></div>
-  if (!report) return <p className="text-slate-500">Report not found.</p>
+  if (repLoading) return (
+    <div className="flex items-center justify-center h-64"><LoadingSpinner size="lg" /></div>
+  )
+  if (!report) return <p style={{ color: '#5c6c7a' }}>Report not found.</p>
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 truncate">{report.original_filename}</h1>
-          <p className="text-slate-500 text-sm mt-1">
+
+      {/* ── Header ───────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="text-[28px] font-medium text-[#001e2b] truncate">{report.original_filename}</h1>
+          <p className="text-[#5c6c7a] text-sm mt-1">
             Uploaded {formatDistanceToNow(new Date(report.created_at), { addSuffix: true })}
             {report.patient_name && ` · ${report.patient_name}`}
           </p>
         </div>
-        <div className="flex gap-2 flex-shrink-0">
-          <Link to={`/reports/${id}/chat`} className="btn-primary flex items-center gap-2">
-            <MessageCircle className="w-4 h-4" /> Chat
-          </Link>
-        </div>
+        <Link to={`/reports/${id}/chat`} className="btn-primary flex items-center gap-2 self-start flex-shrink-0">
+          <MessageCircle className="w-4 h-4" /> Chat with Report
+        </Link>
       </div>
 
-      {/* Report metadata */}
+      {/* ── Metadata grid ──────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'Status',      value: <StatusBadge status={report.status} /> },
-          { label: 'File size',   value: `${(report.file_size / 1024).toFixed(1)} KB` },
-          { label: 'Type',        value: report.mime_type },
-          { label: 'Patient',     value: report.patient_name ?? '—' },
+          { label: 'Status',    value: <StatusBadge status={report.status} /> },
+          { label: 'File size', value: `${(report.file_size / 1024).toFixed(1)} KB` },
+          { label: 'Type',      value: report.mime_type },
+          { label: 'Patient',   value: report.patient_name ?? '—' },
         ].map(({ label, value }) => (
           <Card key={label} className="p-4">
-            <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">{label}</p>
-            <div className="text-sm font-medium text-slate-800">{value}</div>
+            <p className="text-[11px] text-[#a8b3bc] uppercase tracking-wider mb-1">{label}</p>
+            <div className="text-sm font-medium text-[#001e2b]">{value}</div>
           </Card>
         ))}
       </div>
 
-      {/* Analysis section */}
+      {/* ── Analysis ─────────────────────────── */}
       {analysisLoading ? (
-        <Card title="Clinical Analysis"><LoadingSpinner /></Card>
+        <Card title="Clinical Analysis">
+          <div className="p-6 flex items-center gap-3">
+            <LoadingSpinner />
+            <span className="text-sm text-[#5c6c7a]">Analyzing…</span>
+          </div>
+        </Card>
       ) : analysis ? (
         <>
-          {/* Summary counts */}
+          {/* Overview counts */}
           <Card title="Analysis Overview">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="analysis-grid p-6">
               {[
-                { label: 'Total Tests',  value: analysis.total_tests,    color: 'text-slate-700' },
-                { label: 'Normal',       value: analysis.abnormal_count ? analysis.total_tests - analysis.abnormal_count : 0, color: 'text-green-600' },
-                { label: 'Abnormal',     value: analysis.abnormal_count,  color: 'text-amber-600' },
-                { label: 'Critical',     value: analysis.critical_count,  color: 'text-red-600' },
+                { label: 'Total Tests', value: analysis.total_tests,   color: '#001e2b' },
+                { label: 'Normal',      value: analysis.abnormal_count
+                    ? analysis.total_tests - analysis.abnormal_count : 0,       color: '#00684a' },
+                { label: 'Abnormal',    value: analysis.abnormal_count, color: '#c05600' },
+                { label: 'Critical',    value: analysis.critical_count, color: '#b91c1c' },
               ].map(({ label, value, color }) => (
-                <div key={label} className="text-center p-4 bg-slate-50 rounded-xl">
-                  <p className={`text-2xl font-bold ${color}`}>{value ?? 0}</p>
-                  <p className="text-xs text-slate-500 mt-1">{label}</p>
+                <div key={label} className="text-center p-4 rounded-[10px]"
+                  style={{ backgroundColor: '#f9fbfa' }}>
+                  <p className="text-2xl font-semibold" style={{ color }}>{value ?? 0}</p>
+                  <p className="text-xs text-[#a8b3bc] mt-1">{label}</p>
                 </div>
               ))}
             </div>
           </Card>
 
-          {/* Structured JSON preview */}
+          {/* Extracted data */}
           {analysis.structured_json && (
             <Card title="Extracted Report Data">
-              <div className="space-y-3">
+              <div className="p-6 space-y-3">
                 {(() => {
                   try {
                     const d = JSON.parse(analysis.structured_json)
                     return (
                       <>
-                        {d.patient?.name && <p className="text-sm text-slate-700"><span className="font-medium">Patient:</span> {d.patient.name}</p>}
+                        {d.patient?.name && (
+                          <p className="text-sm text-[#001e2b]">
+                            <span className="font-medium">Patient:</span> {d.patient.name}
+                          </p>
+                        )}
                         {d.diagnosis?.length > 0 && (
                           <div>
-                            <p className="text-sm font-medium text-slate-700 mb-1">Diagnosis:</p>
+                            <p className="text-sm font-medium text-[#001e2b] mb-1">Diagnosis:</p>
                             <ul className="list-disc list-inside space-y-0.5">
-                              {d.diagnosis.map((dx: string, i: number) => <li key={i} className="text-sm text-slate-600">{dx}</li>)}
+                              {d.diagnosis.map((dx: string, i: number) => (
+                                <li key={i} className="text-sm text-[#5c6c7a]">{dx}</li>
+                              ))}
                             </ul>
                           </div>
                         )}
                         {d.tests?.slice(0, 8).map((t: { test_name: string; value: unknown; unit?: string; status?: string }) => (
-                          <div key={t.test_name} className="flex items-center justify-between py-1.5 border-b border-slate-50 last:border-0">
-                            <span className="text-sm text-slate-700">{t.test_name}</span>
+                          <div key={t.test_name}
+                            className="flex items-center justify-between py-2 border-b last:border-0"
+                            style={{ borderColor: '#f4f7f6' }}>
+                            <span className="text-sm text-[#5c6c7a]">{t.test_name}</span>
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-slate-800">{String(t.value ?? '—')} {t.unit ?? ''}</span>
+                              <span className="text-sm font-medium text-[#001e2b]">
+                                {String(t.value ?? '—')} {t.unit ?? ''}
+                              </span>
                               {t.status && <StatusBadge status={t.status} />}
                             </div>
                           </div>
                         ))}
                       </>
                     )
-                  } catch { return <p className="text-sm text-slate-500">Could not parse report data.</p> }
+                  } catch {
+                    return <p className="text-sm text-[#a8b3bc]">Could not parse report data.</p>
+                  }
                 })()}
               </div>
             </Card>
@@ -118,18 +138,21 @@ export default function ReportDetailPage() {
         </>
       ) : (
         <Card>
-          <div className="text-center py-8">
-            <FileText className="w-10 h-10 text-slate-200 mx-auto mb-3" />
-            <p className="text-slate-500 text-sm">No analysis stored for this report yet.</p>
-            <p className="text-xs text-slate-400 mt-1">Use the API pipeline to extract and analyze this report.</p>
+          <div className="p-6 text-center py-10">
+            <div className="w-12 h-12 rounded-[10px] bg-[#f4f7f6] flex items-center justify-center mx-auto mb-3">
+              <FileText className="w-6 h-6 text-[#a8b3bc]" />
+            </div>
+            <p className="text-[#5c6c7a] text-sm">No analysis stored for this report yet.</p>
+            <p className="text-xs text-[#a8b3bc] mt-1">Use the pipeline to extract and analyze this report.</p>
           </div>
         </Card>
       )}
 
       {/* Disclaimer */}
-      <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-100">
-        <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-        <p className="text-xs text-amber-800">
+      <div className="flex items-start gap-3 p-4 rounded-[12px] border"
+        style={{ backgroundColor: '#fffbeb', borderColor: '#fde68a' }}>
+        <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#d97706' }} />
+        <p className="text-xs" style={{ color: '#92400e' }}>
           Results are for informational purposes only. Consult your healthcare provider for medical interpretation.
         </p>
       </div>

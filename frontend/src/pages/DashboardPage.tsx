@@ -8,26 +8,31 @@ import Card from '../components/ui/Card'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
 import type { DashboardStats } from '../types'
 
-function StatCard({ label, value, icon: Icon, color }: { label: string; value: number; icon: React.ElementType; color: string }) {
+function StatCard({ label, value, icon: Icon, accent }: {
+  label: string; value: number; icon: React.ElementType; accent: string
+}) {
   return (
-    <Card className="flex items-center gap-4">
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
+    <Card className="flex items-center gap-4 p-5">
+      <div
+        className="w-12 h-12 rounded-[10px] flex items-center justify-center flex-shrink-0"
+        style={{ backgroundColor: accent + '20', color: accent }}
+      >
         <Icon className="w-6 h-6" />
       </div>
       <div>
-        <p className="text-2xl font-bold text-slate-900">{value}</p>
-        <p className="text-sm text-slate-500">{label}</p>
+        <p className="text-2xl font-semibold text-[#001e2b]">{value}</p>
+        <p className="text-sm text-[#5c6c7a]">{label}</p>
       </div>
     </Card>
   )
 }
 
-const RISK_COLOR: Record<string, string> = {
-  Normal:   'text-green-600 bg-green-50',
-  Low:      'text-sky-600 bg-sky-50',
-  Moderate: 'text-amber-600 bg-amber-50',
-  High:     'text-orange-600 bg-orange-50',
-  Critical: 'text-red-600 bg-red-50',
+const RISK_STYLE: Record<string, { bg: string; text: string }> = {
+  Normal:   { bg: '#e3fcef', text: '#00684a' },
+  Low:      { bg: '#e0f2fe', text: '#0369a1' },
+  Moderate: { bg: '#fff8e1', text: '#c05600' },
+  High:     { bg: '#fff3e0', text: '#b45309' },
+  Critical: { bg: '#fee2e2', text: '#b91c1c' },
 }
 
 export default function DashboardPage() {
@@ -45,71 +50,83 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+
+      {/* ── Header ───────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
-            Welcome back, {user?.username} 👋
+          <h1 className="text-[28px] font-medium text-[#001e2b] leading-snug">
+            Welcome back, {user?.username}
           </h1>
-          <p className="text-slate-500 mt-1 text-sm">Here's an overview of your medical reports.</p>
+          <p className="text-[#5c6c7a] mt-1 text-sm">Here's an overview of your medical reports.</p>
         </div>
-        <Link to="/upload" className="btn-primary flex items-center gap-2 px-5 py-2.5">
+        <Link to="/upload" className="btn-primary flex items-center gap-2 self-start sm:self-auto">
           <Upload className="w-4 h-4" /> Upload Report
         </Link>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard label="Total Reports"       value={stats?.total_reports ?? 0}       icon={FileText}     color="bg-sky-100 text-sky-600" />
-        <StatCard label="Reports This Month"  value={stats?.reports_this_month ?? 0}  icon={TrendingUp}   color="bg-green-100 text-green-600" />
-        <StatCard label="Completed Analyses"  value={stats?.completed_analyses ?? 0}  icon={CheckCircle2} color="bg-purple-100 text-purple-600" />
+      {/* ── Stats grid ───────────────────────── */}
+      <div className="stats-grid">
+        <StatCard label="Total Reports"      value={stats?.total_reports ?? 0}       icon={FileText}     accent="#3b82f6" />
+        <StatCard label="Reports This Month" value={stats?.reports_this_month ?? 0}  icon={TrendingUp}   accent="#00ed64" />
+        <StatCard label="Completed Analyses" value={stats?.completed_analyses ?? 0}  icon={CheckCircle2} accent="#7b3ff2" />
       </div>
 
-      {/* Recent Reports */}
+      {/* ── Recent Reports ────────────────────── */}
       <Card title="Recent Reports">
         {!stats?.recent_reports?.length ? (
-          <div className="text-center py-12">
-            <FileText className="w-12 h-12 text-slate-200 mx-auto mb-3" />
-            <p className="text-slate-500 text-sm">No reports yet.</p>
-            <Link to="/upload" className="mt-4 inline-flex btn-primary px-5 py-2">
-              Upload your first report
-            </Link>
+          <div className="text-center py-14">
+            <div className="w-14 h-14 rounded-[12px] bg-[#f4f7f6] flex items-center justify-center mx-auto mb-4">
+              <FileText className="w-7 h-7 text-[#a8b3bc]" />
+            </div>
+            <p className="text-[#5c6c7a] text-sm mb-4">No reports yet.</p>
+            <Link to="/upload" className="btn-primary inline-flex">Upload your first report</Link>
           </div>
         ) : (
-          <div className="divide-y divide-slate-50">
-            {stats.recent_reports.map((r) => (
-              <div key={r.id} className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                    <FileText className="w-5 h-5 text-slate-500" />
+          <div className="divide-y divide-[#f4f7f6]">
+            {stats.recent_reports.map((r) => {
+              const rs = r.risk_level ? RISK_STYLE[r.risk_level] : null
+              return (
+                <div key={r.id} className="flex items-center justify-between py-4 first:pt-0 last:pb-0 gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-[8px] bg-[#f4f7f6] flex items-center justify-center flex-shrink-0">
+                      <FileText className="w-5 h-5 text-[#a8b3bc]" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-[#001e2b] truncate">{r.original_filename}</p>
+                      <p className="text-xs text-[#a8b3bc]">
+                        {r.patient_name ?? 'Unknown patient'} · {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-slate-800 truncate">{r.original_filename}</p>
-                    <p className="text-xs text-slate-400">
-                      {r.patient_name ?? 'Unknown patient'} · {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
-                    </p>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    {rs && (
+                      <span
+                        className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                        style={{ backgroundColor: rs.bg, color: rs.text }}
+                      >
+                        {r.risk_level}
+                      </span>
+                    )}
+                    <Link
+                      to={`/reports/${r.id}`}
+                      className="text-xs font-semibold hover:underline"
+                      style={{ color: '#00684a' }}
+                    >
+                      View →
+                    </Link>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 ml-4 flex-shrink-0">
-                  {r.risk_level && (
-                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${RISK_COLOR[r.risk_level] ?? 'text-slate-600 bg-slate-100'}`}>
-                      {r.risk_level}
-                    </span>
-                  )}
-                  <Link to={`/reports/${r.id}`} className="text-xs text-green-600 hover:text-green-700 font-medium">
-                    View →
-                  </Link>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </Card>
 
-      {/* Medical disclaimer */}
-      <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-100">
-        <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-        <p className="text-sm text-amber-800">
+      {/* ── Disclaimer ────────────────────────── */}
+      <div className="flex items-start gap-3 p-4 rounded-[12px] border"
+        style={{ backgroundColor: '#fffbeb', borderColor: '#fde68a' }}>
+        <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#d97706' }} />
+        <p className="text-sm" style={{ color: '#92400e' }}>
           <strong>Medical Disclaimer:</strong> SehatSaathi-AI is for informational purposes only.
           It does not provide medical diagnoses or prescriptions. Always consult a qualified healthcare professional.
         </p>
