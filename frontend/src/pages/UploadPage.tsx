@@ -57,29 +57,29 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 animate-fade-in">
+    <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
 
       {/* Header */}
-      <div className="flex items-start justify-between gap-6">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="font-bold text-[#0F172A]" style={{ fontSize: '48px', lineHeight: '56px' }}>
+          <h1 className="font-bold text-[#0F172A]" style={{ fontSize: '26px', lineHeight: '34px' }}>
             Upload Medical Report
           </h1>
-          <p className="text-[#64748B] mt-2" style={{ fontSize: '20px' }}>
+          <p className="text-[#64748B] mt-1" style={{ fontSize: '14px' }}>
             Upload your medical report and let SehatSaathi AI analyze it for you.
           </p>
         </div>
         {/* Security badge */}
         <div
-          className="flex-shrink-0 hidden sm:flex items-center gap-3 bg-white border border-[#E5E7EB] rounded-[18px] px-5 py-4"
-          style={{ boxShadow: '0 8px 30px rgba(15,23,42,.05)' }}
+          className="flex-shrink-0 hidden sm:flex items-center gap-2.5 bg-white border border-[#E5E7EB] rounded-[14px] px-4 py-3"
+          style={{ boxShadow: '0 4px 20px rgba(15,23,42,.05)' }}
         >
-          <div className="w-10 h-10 rounded-[12px] flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#ECFDF5' }}>
-            <Shield strokeWidth={2} className="w-5 h-5 text-[#16A34A]" />
+          <div className="w-8 h-8 rounded-[10px] flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#ECFDF5' }}>
+            <Shield strokeWidth={2} className="w-4 h-4 text-[#16A34A]" />
           </div>
           <div>
-            <p className="font-semibold text-[#0F172A]" style={{ fontSize: '15px' }}>Your data is secure</p>
-            <p className="text-[#64748B]" style={{ fontSize: '13px' }}>We don't store your files.</p>
+            <p className="font-semibold text-[#0F172A]" style={{ fontSize: '13px' }}>Your data is secure</p>
+            <p className="text-[#64748B]" style={{ fontSize: '11px' }}>We don't store your files.</p>
           </div>
         </div>
       </div>
@@ -91,28 +91,28 @@ export default function UploadPage() {
         style={{
           borderColor: isDragActive ? '#16A34A' : '#E5E7EB',
           backgroundColor: isDragActive ? '#ECFDF5' : '#FFFFFF',
-          padding: '64px 40px',
-          boxShadow: '0 8px 30px rgba(15,23,42,.05)',
+          padding: '40px 32px',
+          boxShadow: '0 4px 20px rgba(15,23,42,.05)',
         }}
       >
         <input {...getInputProps()} />
         <div className="flex flex-col items-center text-center">
           <div
-            className="w-20 h-20 rounded-full flex items-center justify-center mb-6"
+            className="w-14 h-14 rounded-full flex items-center justify-center mb-4"
             style={{ backgroundColor: isDragActive ? '#16A34A' : '#ECFDF5' }}
           >
-            <Upload strokeWidth={2} className="w-8 h-8" style={{ color: isDragActive ? '#ffffff' : '#16A34A' }} />
+            <Upload strokeWidth={2} className="w-6 h-6" style={{ color: isDragActive ? '#ffffff' : '#16A34A' }} />
           </div>
           {isDragActive ? (
-            <p className="font-bold text-[#16A34A]" style={{ fontSize: '22px' }}>Drop your file here</p>
+            <p className="font-bold text-[#16A34A]" style={{ fontSize: '16px' }}>Drop your file here</p>
           ) : (
             <>
-              <p className="font-bold text-[#0F172A]" style={{ fontSize: '22px' }}>Drag &amp; drop your report here</p>
-              <p className="mt-2" style={{ fontSize: '18px', color: '#64748B' }}>
+              <p className="font-bold text-[#0F172A]" style={{ fontSize: '16px' }}>Drag &amp; drop your report here</p>
+              <p className="mt-1" style={{ fontSize: '14px', color: '#64748B' }}>
                 or click to{' '}
                 <span className="text-[#16A34A] underline underline-offset-2 font-medium">browse files</span>
               </p>
-              <p className="mt-4 text-[#94A3B8]" style={{ fontSize: '16px' }}>
+              <p className="mt-3 text-[#94A3B8]" style={{ fontSize: '13px' }}>
                 PDF, PNG, JPG, or TIFF &nbsp;•&nbsp; Max 20 MB
               </p>
             </>
@@ -163,41 +163,41 @@ export default function UploadPage() {
       {/* Success state */}
       {done && reportId && (
         <div
-          className="flex items-center gap-4 bg-white border border-[#BBF7D0] rounded-[18px] px-6 py-5"
-          style={{ backgroundColor: '#ECFDF5', boxShadow: '0 8px 30px rgba(15,23,42,.05)' }}
+          className="flex items-center gap-4 bg-white border border-[#BBF7D0] rounded-[18px] px-5 py-4"
+          style={{ backgroundColor: '#ECFDF5', boxShadow: '0 4px 20px rgba(15,23,42,.05)' }}
         >
-          <div className="w-14 h-14 rounded-[14px] flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#DCFCE7' }}>
-            <CheckCircle2 strokeWidth={2} className="w-7 h-7 text-[#16A34A]" />
+          <div className="w-10 h-10 rounded-[12px] flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#DCFCE7' }}>
+            <CheckCircle2 strokeWidth={2} className="w-5 h-5 text-[#16A34A]" />
           </div>
           <div className="flex-1">
-            <p className="font-bold text-[#0F172A]" style={{ fontSize: '18px' }}>Upload complete!</p>
-            <p className="text-[#16A34A] mt-0.5" style={{ fontSize: '15px' }}>Your report has been saved and is being processed.</p>
+            <p className="font-bold text-[#0F172A]" style={{ fontSize: '14px' }}>Upload complete!</p>
+            <p className="text-[#16A34A] mt-0.5" style={{ fontSize: '13px' }}>Your report has been saved and is being processed.</p>
           </div>
         </div>
       )}
 
       {/* Formats card */}
       <div
-        className="flex items-center justify-between bg-white border border-[#E5E7EB] rounded-[18px] px-8 py-6"
-        style={{ boxShadow: '0 8px 30px rgba(15,23,42,.05)' }}
+        className="flex items-center justify-between bg-white border border-[#E5E7EB] rounded-[18px] px-5 py-4"
+        style={{ boxShadow: '0 4px 20px rgba(15,23,42,.05)' }}
       >
-        <div className="flex items-center gap-5">
-          <div className="w-14 h-14 rounded-[14px] flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#ECFDF5' }}>
-            <FileText strokeWidth={2} className="w-6 h-6 text-[#16A34A]" />
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 rounded-[12px] flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#ECFDF5' }}>
+            <FileText strokeWidth={2} className="w-5 h-5 text-[#16A34A]" />
           </div>
           <div>
-            <p className="font-semibold text-[#0F172A] mb-3" style={{ fontSize: '18px' }}>Supported file formats</p>
-            <div className="flex flex-wrap items-center gap-2">
+            <p className="font-semibold text-[#0F172A] mb-2" style={{ fontSize: '14px' }}>Supported file formats</p>
+            <div className="flex flex-wrap items-center gap-1.5">
               {FORMAT_BADGES.map(({ label, bg, color }) => (
                 <span
                   key={label}
                   className="font-semibold"
-                  style={{ backgroundColor: bg, color, borderRadius: '8px', padding: '4px 12px', fontSize: '14px' }}
+                  style={{ backgroundColor: bg, color, borderRadius: '6px', padding: '2px 8px', fontSize: '12px' }}
                 >
                   {label}
                 </span>
               ))}
-              <span className="text-[#94A3B8]" style={{ fontSize: '14px', marginLeft: '4px' }}>Max file size: 20 MB</span>
+              <span className="text-[#94A3B8]" style={{ fontSize: '12px', marginLeft: '2px' }}>Max file size: 20 MB</span>
             </div>
           </div>
         </div>
@@ -212,7 +212,7 @@ export default function UploadPage() {
       </div>
 
       {/* Action buttons */}
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-3">
         {!done ? (
           <button
             onClick={handleUpload}
@@ -220,8 +220,8 @@ export default function UploadPage() {
             className="btn-primary inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {uploading
-              ? <><Loader2 strokeWidth={2} className="w-5 h-5 animate-spin" /> Uploading {progress}%</>
-              : <><Upload strokeWidth={2} className="w-5 h-5" /> Upload Report</>}
+              ? <><Loader2 strokeWidth={2} className="w-4 h-4 animate-spin" /> Uploading {progress}%</>
+              : <><Upload strokeWidth={2} className="w-4 h-4" /> Upload Report</>}
           </button>
         ) : (
           <>
@@ -231,7 +231,7 @@ export default function UploadPage() {
             <button
               onClick={() => { setFile(null); setDone(false); setReportId(null) }}
               className="inline-flex items-center gap-2 font-semibold text-[#64748B] hover:text-[#0F172A] transition-colors"
-              style={{ height: '54px', padding: '0 28px', borderRadius: '14px', fontSize: '16px', border: '1px solid #E5E7EB', backgroundColor: 'white' }}
+              style={{ height: '40px', padding: '0 18px', borderRadius: '10px', fontSize: '14px', border: '1px solid #E5E7EB', backgroundColor: 'white' }}
             >
               Upload Another
             </button>
@@ -240,9 +240,9 @@ export default function UploadPage() {
       </div>
 
       {/* Disclaimer */}
-      <div className="flex items-center gap-3 pb-4">
-        <Info strokeWidth={2} className="w-5 h-5 text-[#94A3B8] flex-shrink-0" />
-        <p className="text-[#94A3B8]" style={{ fontSize: '15px' }}>
+      <div className="flex items-center gap-2 pb-2">
+        <Info strokeWidth={2} className="w-4 h-4 text-[#94A3B8] flex-shrink-0" />
+        <p className="text-[#94A3B8]" style={{ fontSize: '12px' }}>
           For informational purposes only. Always consult a physician.
         </p>
       </div>

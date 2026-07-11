@@ -40,10 +40,10 @@ export default function ReportsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="font-bold text-[#0F172A]" style={{ fontSize: '48px', lineHeight: '56px' }}>
+          <h1 className="font-bold text-[#0F172A]" style={{ fontSize: '26px', lineHeight: '34px' }}>
             My Reports
           </h1>
-          <p className="text-[#64748B] mt-1" style={{ fontSize: '20px' }}>
+          <p className="text-[#64748B] mt-0.5" style={{ fontSize: '14px' }}>
             {total} report{total !== 1 ? 's' : ''} uploaded
           </p>
         </div>
@@ -51,7 +51,7 @@ export default function ReportsPage() {
           to="/upload"
           className="btn-primary inline-flex items-center gap-2 self-start sm:self-auto"
         >
-          <Upload strokeWidth={2} className="w-5 h-5" />
+          <Upload strokeWidth={2} className="w-4 h-4" />
           Upload New
         </Link>
       </div>
@@ -60,16 +60,16 @@ export default function ReportsPage() {
       {reports.length === 0 ? (
         <div
           className="bg-white border border-[#E5E7EB] rounded-[18px]"
-          style={{ boxShadow: '0 8px 30px rgba(15,23,42,.05)' }}
-        >
-          <div className="text-center py-20">
-            <div className="w-16 h-16 rounded-[18px] bg-[#F8FAFC] flex items-center justify-center mx-auto mb-5 border border-[#E5E7EB]">
-              <FileText strokeWidth={2} className="w-8 h-8 text-[#94A3B8]" />
+        style={{ boxShadow: '0 4px 20px rgba(15,23,42,.05)' }}
+      >
+          <div className="text-center py-14">
+            <div className="w-12 h-12 rounded-[14px] bg-[#F8FAFC] flex items-center justify-center mx-auto mb-4 border border-[#E5E7EB]">
+              <FileText strokeWidth={2} className="w-6 h-6 text-[#94A3B8]" />
             </div>
-            <p className="font-semibold text-[#0F172A] mb-1" style={{ fontSize: '20px' }}>No reports yet</p>
-            <p className="text-[#64748B] mb-6" style={{ fontSize: '16px' }}>Upload your first medical report to get started.</p>
+            <p className="font-semibold text-[#0F172A] mb-1" style={{ fontSize: '16px' }}>No reports yet</p>
+            <p className="text-[#64748B] mb-5" style={{ fontSize: '14px' }}>Upload your first medical report to get started.</p>
             <Link to="/upload" className="btn-primary inline-flex items-center gap-2">
-              <Upload strokeWidth={2} className="w-5 h-5" />
+              <Upload strokeWidth={2} className="w-4 h-4" />
               Upload Report
             </Link>
           </div>
@@ -77,7 +77,7 @@ export default function ReportsPage() {
       ) : (
         <div
           className="bg-white border border-[#E5E7EB] rounded-[18px] overflow-hidden"
-          style={{ boxShadow: '0 8px 30px rgba(15,23,42,.05)' }}
+          style={{ boxShadow: '0 4px 20px rgba(15,23,42,.05)' }}
         >
           <div className="divide-y divide-[#EEF2F7]">
             {reports.map((r) => {
@@ -86,19 +86,19 @@ export default function ReportsPage() {
               return (
                 <div
                   key={r.id}
-                  className="flex items-center gap-5 px-8 py-5 transition-colors hover:bg-[#F8FAFC]"
+                  className="flex items-center gap-4 px-6 py-4 transition-colors hover:bg-[#F8FAFC]"
                 >
                   {/* File icon */}
-                  <div className="w-12 h-12 rounded-[12px] flex items-center justify-center flex-shrink-0 border border-[#E5E7EB]" style={{ backgroundColor: '#F8FAFC' }}>
-                    <FileText strokeWidth={2} className="w-5 h-5 text-[#94A3B8]" />
+                  <div className="w-10 h-10 rounded-[10px] flex items-center justify-center flex-shrink-0 border border-[#E5E7EB]" style={{ backgroundColor: '#F8FAFC' }}>
+                    <FileText strokeWidth={2} className="w-4 h-4 text-[#94A3B8]" />
                   </div>
 
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-[#0F172A] truncate" style={{ fontSize: '18px' }}>
+                    <p className="font-semibold text-[#0F172A] truncate" style={{ fontSize: '14px' }}>
                       {r.original_filename}
                     </p>
-                    <p className="text-[#64748B] mt-0.5" style={{ fontSize: '15px' }}>
+                    <p className="text-[#64748B] mt-0.5" style={{ fontSize: '12px' }}>
                       Uploaded {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
                       {r.file_size ? <> &nbsp;•&nbsp; {formatBytes(r.file_size)}</> : null}
                     </p>
@@ -112,8 +112,8 @@ export default function ReportsPage() {
                       color: st.text,
                       border: `1px solid ${st.border}`,
                       borderRadius: '999px',
-                      padding: '5px 14px',
-                      fontSize: '14px',
+                      padding: '3px 10px',
+                      fontSize: '12px',
                     }}
                   >
                     {label}
@@ -123,20 +123,20 @@ export default function ReportsPage() {
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <Link
                       to={`/reports/${r.id}/chat`}
-                      className="w-9 h-9 rounded-[10px] flex items-center justify-center text-[#94A3B8] hover:text-[#16A34A] hover:bg-[#ECFDF5] transition-all"
+                      className="w-8 h-8 rounded-[8px] flex items-center justify-center text-[#94A3B8] hover:text-[#16A34A] hover:bg-[#ECFDF5] transition-all"
                       title="Chat with report"
                     >
-                      <MessageCircle strokeWidth={2} className="w-5 h-5" />
+                      <MessageCircle strokeWidth={2} className="w-4 h-4" />
                     </Link>
                     <Link
                       to={`/reports/${r.id}`}
-                      className="inline-flex items-center gap-1 font-semibold text-[#16A34A] hover:text-[#15803D] transition-colors px-3 py-2"
-                      style={{ fontSize: '15px', textDecoration: 'none' }}
+                      className="inline-flex items-center gap-1 font-semibold text-[#16A34A] hover:text-[#15803D] transition-colors px-2 py-1.5"
+                      style={{ fontSize: '13px', textDecoration: 'none' }}
                     >
-                      View <ArrowRight strokeWidth={2} className="w-4 h-4" />
+                      View <ArrowRight strokeWidth={2} className="w-3 h-3" />
                     </Link>
-                    <button className="w-9 h-9 rounded-[10px] flex items-center justify-center text-[#94A3B8] hover:text-[#64748B] hover:bg-[#F8FAFC] transition-all">
-                      <MoreHorizontal strokeWidth={2} className="w-5 h-5" />
+                    <button className="w-8 h-8 rounded-[8px] flex items-center justify-center text-[#94A3B8] hover:text-[#64748B] hover:bg-[#F8FAFC] transition-all">
+                      <MoreHorizontal strokeWidth={2} className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -149,10 +149,10 @@ export default function ReportsPage() {
       {/* Disclaimer */}
       <div
         className="flex items-start gap-4 rounded-[18px] border"
-        style={{ backgroundColor: '#FFF8EB', borderColor: '#FCD34D', padding: '24px 28px' }}
+        style={{ backgroundColor: '#FFF8EB', borderColor: '#FCD34D', padding: '16px 20px' }}
       >
-        <AlertTriangle strokeWidth={2} className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: '#F59E0B' }} />
-        <p style={{ fontSize: '16px', color: '#0F172A' }}>
+        <AlertTriangle strokeWidth={2} className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#F59E0B' }} />
+        <p style={{ fontSize: '13px', color: '#0F172A' }}>
           Results are for informational purposes only. Always consult a qualified healthcare professional.
         </p>
       </div>

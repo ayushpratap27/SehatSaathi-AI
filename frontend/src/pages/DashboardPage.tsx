@@ -22,23 +22,22 @@ function StatCard({ label, value, icon: Icon, accent }: {
   return (
     <div
       className="relative overflow-hidden bg-white border border-[#E5E7EB] rounded-[18px] transition-all duration-[250ms] hover:-translate-y-0.5"
-      style={{ minHeight: '140px', padding: '28px', boxShadow: '0 8px 30px rgba(15,23,42,.05)' }}
+      style={{ padding: '20px', boxShadow: '0 4px 20px rgba(15,23,42,.05)' }}
     >
-      <div className="flex items-center gap-5">
+      <div className="flex items-center gap-4">
         <div
-          className="w-16 h-16 rounded-[18px] flex items-center justify-center flex-shrink-0"
+          className="w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0"
           style={{ backgroundColor: accent.bg, color: accent.icon }}
         >
-          <Icon strokeWidth={2} className="w-[22px] h-[22px]" />
+          <Icon strokeWidth={2} className="w-[18px] h-[18px]" />
         </div>
         <div>
-          <p className="font-bold text-[#0F172A] leading-none" style={{ fontSize: '42px' }}>{value}</p>
-          <p className="text-[#64748B] mt-1 font-medium" style={{ fontSize: '20px' }}>{label}</p>
+          <p className="font-bold text-[#0F172A] leading-none" style={{ fontSize: '28px' }}>{value}</p>
+          <p className="text-[#64748B] mt-0.5 font-medium" style={{ fontSize: '13px' }}>{label}</p>
         </div>
       </div>
-      {/* Subtle decorative shape */}
       <div
-        className="absolute -bottom-4 -right-4 w-32 h-32 rounded-full pointer-events-none"
+        className="absolute -bottom-3 -right-3 w-20 h-20 rounded-full pointer-events-none"
         style={{ backgroundColor: accent.icon, opacity: 0.06 }}
       />
     </div>
@@ -68,15 +67,15 @@ export default function DashboardPage() {
   )
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="font-bold text-[#0F172A]" style={{ fontSize: '48px', lineHeight: '56px' }}>
+          <h1 className="font-bold text-[#0F172A]" style={{ fontSize: '26px', lineHeight: '34px' }}>
             Welcome back, {user?.username} 👋
           </h1>
-          <p className="text-[#64748B] mt-1" style={{ fontSize: '20px' }}>
+          <p className="text-[#64748B] mt-0.5" style={{ fontSize: '14px' }}>
             Here's an overview of your medical reports
           </p>
         </div>
@@ -85,15 +84,15 @@ export default function DashboardPage() {
           className="inline-flex items-center gap-2 self-start sm:self-auto text-white font-semibold transition-all duration-[250ms] hover:scale-[1.02] hover:bg-[#15803D]"
           style={{
             backgroundColor: '#16A34A',
-            height: '54px',
-            padding: '0 28px',
-            borderRadius: '14px',
-            fontSize: '16px',
-            boxShadow: '0 10px 25px rgba(22,163,74,.22)',
+            height: '40px',
+            padding: '0 18px',
+            borderRadius: '10px',
+            fontSize: '14px',
+            boxShadow: '0 4px 14px rgba(22,163,74,.22)',
             textDecoration: 'none',
           }}
         >
-          <Upload strokeWidth={2} className="w-5 h-5" />
+          <Upload strokeWidth={2} className="w-4 h-4" />
           Upload Report
         </Link>
       </div>
@@ -111,35 +110,35 @@ export default function DashboardPage() {
         style={{ boxShadow: '0 8px 30px rgba(15,23,42,.05)' }}
       >
         <div
-          className="flex items-center justify-between px-8 border-b border-[#E5E7EB]"
-          style={{ height: '72px' }}
+          className="flex items-center justify-between px-6 border-b border-[#E5E7EB]"
+          style={{ height: '52px' }}
         >
-          <h2 className="font-bold text-[#0F172A]" style={{ fontSize: '22px' }}>Recent Reports</h2>
+          <h2 className="font-semibold text-[#0F172A]" style={{ fontSize: '15px' }}>Recent Reports</h2>
           <Link
             to="/reports"
             className="inline-flex items-center gap-1 font-medium text-[#16A34A] hover:text-[#15803D] transition-colors"
-            style={{ fontSize: '16px', textDecoration: 'none' }}
+            style={{ fontSize: '13px', textDecoration: 'none' }}
           >
-            View all reports <ArrowRight strokeWidth={2} className="w-4 h-4" />
+            View all reports <ArrowRight strokeWidth={2} className="w-3 h-3" />
           </Link>
         </div>
 
-        <div className="px-8 py-6" style={{ minHeight: '110px' }}>
+        <div className="px-6 py-4">
           {!stats?.recent_reports?.length ? (
             <div className="text-center py-10">
-              <div className="w-14 h-14 rounded-[18px] bg-[#F8FAFC] flex items-center justify-center mx-auto mb-4">
-                <FileText className="w-7 h-7 text-[#94A3B8]" />
+              <div className="w-10 h-10 rounded-[12px] bg-[#F8FAFC] flex items-center justify-center mx-auto mb-3">
+                <FileText className="w-5 h-5 text-[#94A3B8]" />
               </div>
-              <p className="text-[#64748B] mb-4" style={{ fontSize: '16px' }}>No reports yet.</p>
+              <p className="text-[#64748B] mb-3" style={{ fontSize: '13px' }}>No reports yet.</p>
               <Link
                 to="/upload"
                 className="inline-flex items-center gap-2 text-white font-semibold"
                 style={{
                   backgroundColor: '#16A34A',
-                  height: '46px',
-                  padding: '0 24px',
-                  borderRadius: '14px',
-                  fontSize: '15px',
+                  height: '36px',
+                  padding: '0 16px',
+                  borderRadius: '10px',
+                  fontSize: '13px',
                   textDecoration: 'none',
                 }}
               >
@@ -151,27 +150,27 @@ export default function DashboardPage() {
               {stats.recent_reports.map((r) => {
                 const rs = r.risk_level ? RISK_STYLE[r.risk_level] : null
                 return (
-                  <div key={r.id} className="flex items-center justify-between py-5 first:pt-0 last:pb-0 gap-4">
-                    <div className="flex items-center gap-4 min-w-0">
+                  <div key={r.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0 gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
                       {/* PDF icon */}
-                      <div className="w-14 h-14 rounded-[14px] flex flex-col items-center justify-center flex-shrink-0 border border-[#FECACA]"
+                      <div className="w-9 h-9 rounded-[10px] flex flex-col items-center justify-center flex-shrink-0 border border-[#FECACA]"
                         style={{ backgroundColor: '#FEF2F2' }}>
-                        <FileText strokeWidth={2} className="w-6 h-6 text-[#EF4444]" />
-                        <span className="font-bold text-[#EF4444] tracking-wide" style={{ fontSize: '9px', marginTop: '2px' }}>PDF</span>
+                        <FileText strokeWidth={2} className="w-4 h-4 text-[#EF4444]" />
+                        <span className="font-bold text-[#EF4444] tracking-wide" style={{ fontSize: '8px', marginTop: '1px' }}>PDF</span>
                       </div>
                       <div className="min-w-0">
-                        <p className="font-semibold text-[#0F172A] truncate" style={{ fontSize: '22px' }}>
+                        <p className="font-semibold text-[#0F172A] truncate" style={{ fontSize: '14px' }}>
                           {r.original_filename}
                         </p>
-                        <p className="text-[#64748B] mt-0.5 flex items-center gap-1" style={{ fontSize: '16px' }}>
+                        <p className="text-[#64748B] mt-0.5 flex items-center gap-1" style={{ fontSize: '12px' }}>
                           {r.patient_name ?? 'Unknown patient'}
                           <span className="mx-1">•</span>
-                          <Clock strokeWidth={2} className="w-4 h-4 inline flex-shrink-0" />
+                          <Clock strokeWidth={2} className="w-3 h-3 inline flex-shrink-0" />
                           {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 flex-shrink-0">
+                    <div className="flex items-center gap-3 flex-shrink-0">
                       {rs && (
                         <span
                           className="font-semibold"
@@ -179,8 +178,8 @@ export default function DashboardPage() {
                             backgroundColor: rs.bg,
                             color: rs.text,
                             borderRadius: '999px',
-                            padding: '6px 14px',
-                            fontSize: '14px',
+                            padding: '3px 10px',
+                            fontSize: '11px',
                           }}
                         >
                           {r.risk_level}
@@ -189,9 +188,9 @@ export default function DashboardPage() {
                       <Link
                         to={`/reports/${r.id}`}
                         className="inline-flex items-center gap-1 font-semibold text-[#16A34A] hover:text-[#15803D] transition-colors"
-                        style={{ fontSize: '16px', textDecoration: 'none' }}
+                        style={{ fontSize: '13px', textDecoration: 'none' }}
                       >
-                        View Report <ArrowRight strokeWidth={2} className="w-4 h-4" />
+                        View Report <ArrowRight strokeWidth={2} className="w-3 h-3" />
                       </Link>
                     </div>
                   </div>
@@ -205,10 +204,10 @@ export default function DashboardPage() {
       {/* Disclaimer */}
       <div
         className="flex items-start gap-4 rounded-[18px] border"
-        style={{ backgroundColor: '#FFF8EB', borderColor: '#FCD34D', padding: '28px' }}
+        style={{ backgroundColor: '#FFF8EB', borderColor: '#FCD34D', padding: '16px 20px' }}
       >
-        <AlertTriangle strokeWidth={2} className="w-[22px] h-[22px] flex-shrink-0 mt-0.5" style={{ color: '#F59E0B' }} />
-        <p style={{ fontSize: '18px', color: '#0F172A' }}>
+        <AlertTriangle strokeWidth={2} className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#F59E0B' }} />
+        <p style={{ fontSize: '13px', color: '#0F172A' }}>
           <strong style={{ color: '#F59E0B' }}>Medical Disclaimer:</strong>{' '}
           SehatSaathi-AI is for informational purposes only. It does not provide medical diagnoses or prescriptions.
           Always consult a qualified healthcare professional.
