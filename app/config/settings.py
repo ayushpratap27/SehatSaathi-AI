@@ -70,7 +70,7 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "data/uploads"
     PROCESSED_DIR: str = "data/processed"
     TEMP_DIR: str = "data/temp"
-    MAX_UPLOAD_SIZE_MB: int = 50
+    MAX_UPLOAD_SIZE_MB: int = 20
 
     # Allowed MIME types for uploaded medical documents
     ALLOWED_MIME_TYPES: List[str] = [

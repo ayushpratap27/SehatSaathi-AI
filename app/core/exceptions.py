@@ -53,7 +53,7 @@ class FileTooLargeException(SehatSaathiException):
     def __init__(self, max_mb: int) -> None:
         super().__init__(
             message=f"File exceeds the maximum allowed size of {max_mb} MB.",
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
         )
 
 
