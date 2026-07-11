@@ -25,19 +25,24 @@ settings = get_settings()
 # Engine
 # ------------------------------------------------------------------ #
 
-# SQLite-specific connect args
-connect_args: dict = {}
 if "sqlite" in settings.DATABASE_URL:
-    connect_args = {
-        "check_same_thread": False,
-        "timeout": 30,          # wait up to 30 s for a write lock
-    }
-
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=settings.DEBUG,
-    connect_args=connect_args,
-)
+    # SQLite: use StaticPool so all sessions share ONE connection.
+    # This completely eliminates "database is locked" errors because
+    # writes are serialised at the connection level.  Safe for single-
+    # process development; switch to PostgreSQL for production.
+    from sqlalchemy.pool import StaticPool  # noqa: PLC0415
+    engine = create_async_engine(
+        settings.DATABASE_URL,
+        echo=settings.DEBUG,
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+else:
+    # PostgreSQL (production): use default async pool
+    engine = create_async_engine(
+        settings.DATABASE_URL,
+        echo=settings.DEBUG,
+    )
 
 # ------------------------------------------------------------------ #
 # WAL mode initialisation (called from app lifespan)
