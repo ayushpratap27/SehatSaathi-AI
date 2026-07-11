@@ -7,7 +7,7 @@ added or removed without touching this file.
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import ai, analysis, auth, chat, report, upload
+from app.api.v1.endpoints import ai, analysis, auth, chat, rag, report, upload
 
 api_router = APIRouter()
 
@@ -17,3 +17,4 @@ api_router.include_router(report.router,   prefix="/report",   tags=["Report"])
 api_router.include_router(analysis.router, prefix="/analysis", tags=["Analysis"])
 api_router.include_router(chat.router,     prefix="/chat",     tags=["Chat"])
 api_router.include_router(ai.router,       prefix="/ai",       tags=["AI (Gemini)"])
+api_router.include_router(rag.router,      prefix="/rag",      tags=["RAG"])

@@ -73,6 +73,11 @@ pyyaml>=6.0.0,<7.0.0                 # load reference range YAML configs
 google-genai>=1.0.0,<2.0.0            # Official Google GenAI SDK (Gemini 2.5 Flash)
 
 # ---------------------------------------------------------------------------
+# Phase 6: RAG pipeline  ✅ Active
+# ---------------------------------------------------------------------------
+faiss-cpu>=1.9.0,<2.0.0              # FAISS vector similarity search (use faiss-gpu for CUDA)
+
+# ---------------------------------------------------------------------------
 # Phase 8: Security  (uncomment when starting Phase 8)
 # ---------------------------------------------------------------------------
 # bcrypt>=4.2.0,<5.0.0
