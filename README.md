@@ -16,7 +16,8 @@ SehatSaathi-AI helps patients understand complex medical reports in plain, simpl
 | **Phase 2** | Document ingestion pipeline (PDF + OCR) | ✅ Complete |
 | **Phase 3** | Medical information extraction (NER + structured JSON) | ✅ Complete |
 | **Phase 4** | Medical Analysis Engine (reference ranges + insights) | ✅ Complete |
-| Phase 5 | AI report understanding & summaries | 🔜 Next |
+| **Phase 5** | Gemini AI layer (summary, explanation, chat) | ✅ Complete |
+| Phase 6 | Intelligent chat assistant (RAG) | 🔜 Next |
 | Phase 6 | Intelligent chat assistant | 🔜 Planned |
 | Phase 7 | Streamlit MVP frontend | 🔜 Planned |
 | Phase 8 | Authentication & user management | 🔜 Planned |
@@ -159,7 +160,12 @@ The Streamlit app will open at http://localhost:8501
 | POST | `/api/v1/report/extract` | Extract text from a report | ✅ Phase 2 |
 | **POST** | **`/api/v1/report/parse`** | **Structured JSON from report** | **✅ Phase 3** |
 | **POST** | **`/api/v1/analysis/analyze`** | **Medical analysis from ParsedReport** | **✅ Phase 4** |
-| GET | `/api/v1/report/{id}` | Get structured report data | 🔜 Phase 5 |
+| **POST** | **`/api/v1/ai/summary`** | **AI executive summary (Gemini)** | **✅ Phase 5** |
+| **POST** | **`/api/v1/ai/explain`** | **Plain-language medical explanations** | **✅ Phase 5** |
+| **POST** | **`/api/v1/ai/chat`** | **Grounded Q&A with your report** | **✅ Phase 5** |
+| GET | `/api/v1/ai/health` | Gemini API connectivity check | ✅ Phase 5 |
+| POST | `/api/v1/ai/stream/summary` | SSE streaming summary | ✅ Phase 5 |
+| GET | `/api/v1/report/{id}` | Get structured report data | 🔜 Phase 6 |
 | GET | `/api/v1/analysis/{id}/entities` | Medical entities | 🔜 Phase 4 |
 | GET | `/api/v1/analysis/{id}/lab-values` | Lab results | 🔜 Phase 4 |
 | POST | `/api/v1/chat/session` | Create chat session | 🔜 Phase 6 |

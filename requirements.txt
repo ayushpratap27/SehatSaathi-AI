@@ -68,10 +68,9 @@ spacy>=3.7.0,<4.0.0
 pyyaml>=6.0.0,<7.0.0                 # load reference range YAML configs
 
 # ---------------------------------------------------------------------------
-# Phase 5+: LLM clients  (uncomment as needed)
+# Phase 5: Gemini AI layer  ✅ Active
 # ---------------------------------------------------------------------------
-# openai>=1.55.0,<2.0.0
-# ollama>=0.4.0,<1.0.0
+google-genai>=1.0.0,<2.0.0            # Official Google GenAI SDK (Gemini 2.5 Flash)
 
 # ---------------------------------------------------------------------------
 # Phase 8: Security  (uncomment when starting Phase 8)
