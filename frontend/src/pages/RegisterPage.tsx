@@ -20,7 +20,8 @@ type Form = z.infer<typeof schema>
 
 export default function RegisterPage() {
   const { register: authRegister } = useAuth()
-  const [showPw, setShowPw]   = useState<Record<string, boolean>>({})
+  const [showPw, setShowPw]           = useState<Record<string, boolean>>({})
+  const [serverError, setServerError] = useState('')
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<Form>({
     resolver: zodResolver(schema),
   })
@@ -28,7 +29,13 @@ export default function RegisterPage() {
   const togglePw = (name: string) => setShowPw((prev) => ({ ...prev, [name]: !prev[name] }))
 
   const onSubmit = async ({ confirm: _c, ...data }: Form) => {
-    try { await authRegister(data) } catch { /* handled by interceptor */ }
+    setServerError('')
+    try {
+      await authRegister(data)
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      setServerError(msg ?? 'Registration failed. Please try again.')
+    }
   }
 
   return (
@@ -65,6 +72,12 @@ export default function RegisterPage() {
             <p className="text-[#5c6c7a] text-sm mb-7">Get started for free.</p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              {serverError && (
+                <div className="rounded-[8px] px-4 py-3 text-sm font-medium"
+                  style={{ backgroundColor: '#fee2e2', color: '#b91c1c' }}>
+                  {serverError}
+                </div>
+              )}
               {([
                 { name: 'email',     label: 'Email',                   type: 'email', placeholder: 'you@example.com' },
                 { name: 'username',  label: 'Username',                 type: 'text',  placeholder: 'john_doe' },

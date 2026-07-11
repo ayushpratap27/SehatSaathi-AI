@@ -14,13 +14,20 @@ type Form = z.infer<typeof schema>
 
 export default function LoginPage() {
   const { login } = useAuth()
-  const [showPw, setShowPw] = useState(false)
+  const [showPw, setShowPw]       = useState(false)
+  const [serverError, setServerError] = useState('')
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<Form>({
     resolver: zodResolver(schema),
   })
 
   const onSubmit = async (data: Form) => {
-    try { await login(data) } catch { /* handled by interceptor */ }
+    setServerError('')
+    try {
+      await login(data)
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      setServerError(msg ?? 'Invalid email or password.')
+    }
   }
 
   return (
@@ -60,6 +67,12 @@ export default function LoginPage() {
             <p className="text-[#5c6c7a] text-sm mb-7">Welcome back. Enter your details.</p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              {serverError && (
+                <div className="rounded-[8px] px-4 py-3 text-sm font-medium"
+                  style={{ backgroundColor: '#fee2e2', color: '#b91c1c' }}>
+                  {serverError}
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-[#001e2b] mb-1.5">Email address</label>
                 <input
