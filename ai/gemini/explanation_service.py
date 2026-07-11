@@ -14,9 +14,12 @@ from typing import List, Optional
 from ai.gemini.gemini_client import GeminiClient, gemini_client
 from ai.gemini.prompt_templates import explanation_prompt, strict_retry_prompt
 from ai.gemini.response_validator import ResponseValidator, extract_json, response_validator
+from app.config.settings import get_settings
 from app.schemas.ai import ExplanationItem, ExplanationResponse
 from app.schemas.analysis import ReportAnalysisResult
 from app.schemas.report import ParsedReport
+
+_settings = get_settings()
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +87,7 @@ class ExplanationService:
 
         return ExplanationResponse(
             explanations=items,
-            model_used=__import__("app.config.settings", fromlist=["get_settings"]).get_settings().GEMINI_MODEL,
+            model_used=_settings.GROQ_MODEL,
             tokens_used=result.tokens_used,
         )
 

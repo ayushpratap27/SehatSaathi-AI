@@ -18,11 +18,13 @@ from typing import Optional
 from ai.gemini.gemini_client import GeminiClient, gemini_client
 from ai.gemini.prompt_templates import chat_prompt, strict_retry_prompt
 from ai.gemini.response_validator import ResponseValidator, response_validator
+from app.config.settings import get_settings
 from app.schemas.ai import ChatResponse
 from app.schemas.analysis import ReportAnalysisResult
 from app.schemas.report import ParsedReport
 
 logger = logging.getLogger(__name__)
+_settings = get_settings()
 
 _NOT_AVAILABLE = "This information is not available in the uploaded report."
 
@@ -91,7 +93,7 @@ class ChatService:
 
         return ChatResponse(
             answer=answer_text,
-            model_used=__import__("app.config.settings", fromlist=["get_settings"]).get_settings().GEMINI_MODEL,
+            model_used=_settings.GROQ_MODEL,
             tokens_used=result.tokens_used,
         )
 

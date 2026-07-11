@@ -35,7 +35,7 @@ class Settings(BaseSettings):
         "AI-powered Medical Report Understanding System — "
         "helping patients understand their health reports in plain language."
     )
-    APP_VERSION: str = "0.1.0"
+    APP_VERSION: str = "1.0.0"
     ENV: str = "development"
     DEBUG: bool = False   # never default to True — leaks SQL and stack traces
 
@@ -85,16 +85,24 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------ #
     # AI / LLM  (integrated in future phases)
     # ------------------------------------------------------------------ #
-    # Gemini AI  (Phase 5)
+    # Groq LLM  (Phase 5 — replaces Gemini text generation)
     # ------------------------------------------------------------------ #
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"   # fast, capable 70B model
+    GROQ_TEMPERATURE: float = 0.3
+    GROQ_MAX_TOKENS: int = 4096
+    GROQ_TIMEOUT: int = 60
+    GROQ_MAX_RETRIES: int = 2
+
+    # Keep for backward compatibility references; not used for text generation
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-2.5-flash"
-    GEMINI_TEMPERATURE: float = 0.3      # Lower = more factual, less creative
+    GEMINI_TEMPERATURE: float = 0.3
     GEMINI_MAX_TOKENS: int = 4096
     GEMINI_TOP_P: float = 0.95
     GEMINI_TOP_K: int = 40
-    GEMINI_TIMEOUT: int = 60             # seconds per request
-    GEMINI_MAX_RETRIES: int = 2          # retries on transient errors
+    GEMINI_TIMEOUT: int = 60
+    GEMINI_MAX_RETRIES: int = 2
 
     # ------------------------------------------------------------------ #
     # Redis  (Phase 8)
@@ -104,9 +112,12 @@ class Settings(BaseSettings):
 
     # ------------------------------------------------------------------ #
     # Gemini Embeddings + RAG  (Phase 6)
+    # Now uses sentence-transformers locally — no API key required
     # ------------------------------------------------------------------ #
-    GEMINI_EMBEDDING_MODEL: str = "models/text-embedding-004"
-    GEMINI_EMBEDDING_DIMENSION: int = 768
+    GEMINI_EMBEDDING_MODEL: str = "models/text-embedding-004"  # kept for reference
+    EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"     # local model, no API key needed
+    EMBEDDING_DIMENSION: int = 384                  # dimension for all-MiniLM-L6-v2
+    GEMINI_EMBEDDING_DIMENSION: int = 384           # alias kept for compatibility
 
     # FAISS / vector store
     VECTOR_STORE_DIR: str = "data/vector_stores"

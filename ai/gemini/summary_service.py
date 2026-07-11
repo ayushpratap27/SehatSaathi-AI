@@ -13,11 +13,13 @@ from typing import Any, List, Optional
 from ai.gemini.gemini_client import GeminiClient, gemini_client
 from ai.gemini.prompt_templates import strict_retry_prompt, summary_prompt
 from ai.gemini.response_validator import ResponseValidator, extract_json, response_validator
+from app.config.settings import get_settings
 from app.schemas.ai import AbnormalTestExplanation, SummaryResponse
 from app.schemas.analysis import ReportAnalysisResult
 from app.schemas.report import ParsedReport
 
 logger = logging.getLogger(__name__)
+_settings = get_settings()
 
 
 class SummaryService:
@@ -97,7 +99,7 @@ class SummaryService:
             medicines=data.get("medicines", []),
             diagnosis=data.get("diagnosis", []),
             follow_up=data.get("follow_up", []),
-            model_used=__import__("app.config.settings", fromlist=["get_settings"]).get_settings().GEMINI_MODEL,
+            model_used=_settings.GROQ_MODEL,
             tokens_used=tokens,
         )
 

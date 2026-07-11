@@ -1,12 +1,15 @@
 """
-Embedding Service — generates dense vector embeddings using the Gemini
-text-embedding-004 model via the official Google GenAI SDK.
+Embedding Service — generates dense vector embeddings using sentence-transformers.
 
-Two task types are used:
-  RETRIEVAL_DOCUMENT  — for indexing document chunks
-  RETRIEVAL_QUERY     — for embedding user questions at query time
+Previously used the Gemini text-embedding-004 API. Now uses a local
+sentence-transformers model (all-MiniLM-L6-v2) which:
+  - Requires no API key
+  - Runs entirely on-device (CPU)
+  - Produces 384-dimensional vectors
+  - Is faster for small batches due to no network latency
 
-Embeddings are returned as float32 NumPy arrays, ready for FAISS.
+The public interface (embed_documents / embed_query) is unchanged so the
+rest of the RAG pipeline works without modification.
 """
 
 from __future__ import annotations
@@ -25,114 +28,110 @@ settings = get_settings()
 
 class EmbeddingService:
     """
-    Generates text embeddings using the Gemini Embedding API.
+    Generates text embeddings using a local sentence-transformers model.
 
-    The service initialises the Google GenAI client lazily on first use
-    so it can be imported anywhere without requiring a configured API key
-    at import time (supporting tests that mock the API).
+    The model is loaded lazily on first use (downloads ~80 MB on first call,
+    cached to disk by HuggingFace Hub afterward).
+
+    Usage::
+
+        emb = embedding_service.embed_query("What is my hemoglobin?")
+        matrix = embedding_service.embed_documents(["chunk 1", "chunk 2"])
     """
 
-    def __init__(self, api_key: Optional[str] = None) -> None:
-        self._api_key = api_key or settings.GEMINI_API_KEY
-        self._model   = settings.GEMINI_EMBEDDING_MODEL
-        self._dim     = settings.GEMINI_EMBEDDING_DIMENSION
-        self._client  = None
+    def __init__(self) -> None:
+        self._model: Optional[object] = None
+        self._model_name: str = settings.EMBEDDING_MODEL
+        self._dim: int = settings.EMBEDDING_DIMENSION
 
     # ---------------------------------------------------------------- #
     # Initialisation
     # ---------------------------------------------------------------- #
 
-    def _get_client(self):
-        if self._client is None:
-            if not self._api_key:
-                raise RuntimeError(
-                    "GEMINI_API_KEY is not configured. "
-                    "Set it in your .env file to use the embedding service."
+    def _get_model(self):
+        """Lazy-load the sentence-transformers model."""
+        if self._model is None:
+            try:
+                from sentence_transformers import SentenceTransformer  # noqa: PLC0415
+                logger.info(
+                    "Loading sentence-transformers model '%s' (first call may download ~80 MB)…",
+                    self._model_name,
                 )
-            from google import genai  # noqa: PLC0415
-            self._client = genai.Client(api_key=self._api_key)
-        return self._client
+                self._model = SentenceTransformer(self._model_name)
+                logger.info("Embedding model ready: %s (dim=%d)", self._model_name, self._dim)
+            except ImportError as exc:
+                raise RuntimeError(
+                    "sentence-transformers is not installed. "
+                    "Run: pip install sentence-transformers"
+                ) from exc
+        return self._model
 
     # ---------------------------------------------------------------- #
-    # Core embedding
-    # ---------------------------------------------------------------- #
-
-    def _embed_text(self, text: str, task_type: str) -> np.ndarray:
-        """
-        Call the Gemini Embedding API synchronously (run in thread pool).
-
-        Args:
-            text:      Input text to embed.
-            task_type: "RETRIEVAL_DOCUMENT" or "RETRIEVAL_QUERY".
-
-        Returns:
-            Float32 NumPy array of shape ``(dim,)``.
-        """
-        from google.genai import types  # noqa: PLC0415
-
-        client = self._get_client()
-        response = client.models.embed_content(
-            model=self._model,
-            contents=text,
-            config=types.EmbedContentConfig(task_type=task_type),
-        )
-        values = response.embeddings[0].values
-        return np.array(values, dtype=np.float32)
-
-    # ---------------------------------------------------------------- #
-    # Public API (sync — wrapped async by callers)
+    # Public API
     # ---------------------------------------------------------------- #
 
     def embed_documents(self, texts: List[str]) -> np.ndarray:
         """
-        Embed a list of document chunks.
+        Embed a list of document chunks for indexing.
 
         Args:
             texts: List of chunk text strings.
 
         Returns:
             Float32 array of shape ``(len(texts), dim)``.
+            Vectors are L2-normalised (unit length).
         """
         t0 = time.perf_counter()
-        embeddings: List[np.ndarray] = []
+        model = self._get_model()
 
-        for i, text in enumerate(texts):
-            if not text.strip():
-                # Zero vector for empty chunks
-                embeddings.append(np.zeros(self._dim, dtype=np.float32))
-                continue
-            emb = self._embed_text(text, "RETRIEVAL_DOCUMENT")
-            embeddings.append(emb)
-            if (i + 1) % 10 == 0:
-                logger.debug("Embedded %d/%d chunks…", i + 1, len(texts))
+        # Filter empty texts — replace with zero vectors
+        non_empty = [(i, t) for i, t in enumerate(texts) if t.strip()]
+        result = np.zeros((len(texts), self._dim), dtype=np.float32)
 
-        matrix = np.vstack(embeddings) if embeddings else np.empty((0, self._dim), dtype=np.float32)
+        if non_empty:
+            indices, valid_texts = zip(*non_empty)
+            embeddings = model.encode(  # type: ignore[union-attr]
+                list(valid_texts),
+                normalize_embeddings=True,  # unit vectors → cosine sim = inner product
+                show_progress_bar=False,
+                convert_to_numpy=True,
+            )
+            for array_idx, original_idx in enumerate(indices):
+                result[original_idx] = embeddings[array_idx]
+
         elapsed = time.perf_counter() - t0
         logger.info(
-            "EmbeddingService: %d document vectors in %.2fs (dim=%d)",
-            len(texts), elapsed, self._dim,
+            "EmbeddingService: %d document vectors in %.2fs (dim=%d, model=%s)",
+            len(texts), elapsed, self._dim, self._model_name,
         )
-        return matrix
+        return result
 
     def embed_query(self, query: str) -> np.ndarray:
         """
-        Embed a single user query.
+        Embed a single user query for similarity search.
 
         Args:
             query: The user's question.
 
         Returns:
-            Float32 array of shape ``(dim,)``.
+            Float32 array of shape ``(dim,)``, L2-normalised.
         """
         if not query.strip():
             return np.zeros(self._dim, dtype=np.float32)
-        emb = self._embed_text(query, "RETRIEVAL_QUERY")
-        logger.debug("EmbeddingService: query embedded (dim=%d)", len(emb))
-        return emb
+
+        model = self._get_model()
+        embedding = model.encode(  # type: ignore[union-attr]
+            [query],
+            normalize_embeddings=True,
+            show_progress_bar=False,
+            convert_to_numpy=True,
+        )
+        logger.debug("EmbeddingService: query embedded (dim=%d)", self._dim)
+        return embedding[0].astype(np.float32)
 
     @property
     def dimension(self) -> int:
-        """Embedding dimension."""
+        """Embedding vector dimension."""
         return self._dim
 
 

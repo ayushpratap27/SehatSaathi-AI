@@ -87,8 +87,7 @@ data/temp/*
 
 # FAISS indexes (Phase 4)
 *.faiss
-*.index
-
+*.index*.chunks.pkl       # legacy pickle format — replaced by JSON
 # SQLite dev database
 *.db
 *.sqlite

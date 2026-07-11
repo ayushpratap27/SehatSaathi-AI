@@ -1,12 +1,13 @@
 """
-Gemini client — wraps the Google GenAI SDK for use across all Phase 5 services.
+LLM client — wraps the Groq SDK for fast inference via Llama 3.3.
 
-Responsibilities:
-- Load API key and model settings from environment
-- Initialize the Google GenAI client (lazy singleton)
-- Expose async generate() and stream() methods
-- Handle retries, timeouts, and API exceptions
-- Log request timing and token usage
+Previously used Google Gemini; replaced with Groq for:
+  - Faster inference (Groq's custom LPU hardware)
+  - Free tier availability
+  - OpenAI-compatible API
+
+Public interface is unchanged so all services (summary, explanation, chat)
+work without modification.
 """
 
 from __future__ import annotations
@@ -14,7 +15,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import AsyncGenerator, Optional
 
 from starlette.concurrency import run_in_threadpool
@@ -27,26 +28,26 @@ settings = get_settings()
 
 
 # ------------------------------------------------------------------ #
-# Custom exceptions
+# Custom exceptions (names kept for backward compatibility)
 # ------------------------------------------------------------------ #
 
 class GeminiConfigException(SehatSaathiException):
-    """Raised when Gemini cannot be initialised (missing API key, etc.)."""
+    """Raised when the LLM client cannot be initialised."""
     def __init__(self, message: str) -> None:
         super().__init__(message=message, status_code=503)
 
 
 class GeminiAPIException(SehatSaathiException):
-    """Raised when the Gemini API returns an error."""
+    """Raised when the LLM API returns an error."""
     def __init__(self, message: str) -> None:
         super().__init__(message=message, status_code=502)
 
 
 class GeminiTimeoutException(SehatSaathiException):
-    """Raised when a Gemini request exceeds the configured timeout."""
+    """Raised when an LLM request exceeds the configured timeout."""
     def __init__(self) -> None:
         super().__init__(
-            message="Gemini request timed out. Please try again.",
+            message="LLM request timed out. Please try again.",
             status_code=504,
         )
 
@@ -57,7 +58,7 @@ class GeminiTimeoutException(SehatSaathiException):
 
 @dataclass
 class GenerationResult:
-    """Structured result from a Gemini generation call."""
+    """Structured result from one LLM generation call."""
     text: str
     model: str
     prompt_tokens: int = 0
@@ -72,27 +73,27 @@ class GenerationResult:
 
 
 # ------------------------------------------------------------------ #
-# Client
+# LLM Client (Groq backend)
 # ------------------------------------------------------------------ #
 
-class GeminiClient:
+class LLMClient:
     """
-    Singleton wrapper around the Google GenAI SDK.
+    Singleton wrapper around the Groq SDK.
 
-    Thread-safe: initialised once on first call to ``generate()``
-    or ``health_check()``.
+    Sends prompts to Llama 3.3 70B Versatile (or any configured GROQ_MODEL)
+    via Groq's ultra-fast LPU inference API.
 
     Usage::
 
-        result = await gemini_client.generate("Explain this report...")
+        result = await llm_client.generate("Explain this medical report...")
         print(result.text)
     """
 
-    _instance: Optional["GeminiClient"] = None
+    _instance: Optional["LLMClient"] = None
     _native_client: Optional[object] = None
     _ready: bool = False
 
-    def __new__(cls) -> "GeminiClient":
+    def __new__(cls) -> "LLMClient":
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
@@ -107,77 +108,58 @@ class GeminiClient:
         self._init()
 
     def _init(self) -> None:
-        """Initialise the Google GenAI client."""
-        if not settings.GEMINI_API_KEY:
+        """Initialise the Groq client."""
+        if not settings.GROQ_API_KEY:
             raise GeminiConfigException(
-                "GEMINI_API_KEY is not set. "
-                "Add it to your .env file: GEMINI_API_KEY=your_key_here"
+                "GROQ_API_KEY is not set. "
+                "Get a free key at https://console.groq.com and add it to .env"
             )
         try:
-            from google import genai  # noqa: PLC0415
-            self._native_client = genai.Client(api_key=settings.GEMINI_API_KEY)
+            from groq import Groq  # noqa: PLC0415
+            self._native_client = Groq(api_key=settings.GROQ_API_KEY)
             self._ready = True
-            logger.info(
-                "GeminiClient ready — model: %s, max_tokens: %d",
-                settings.GEMINI_MODEL, settings.GEMINI_MAX_TOKENS,
-            )
+            logger.info("LLM client ready — model: %s", settings.GROQ_MODEL)
         except ImportError as exc:
             raise GeminiConfigException(
-                "google-genai package is not installed. "
-                "Run: pip install google-genai"
+                "groq package is not installed. Run: pip install groq"
             ) from exc
 
     # ---------------------------------------------------------------- #
     # Core generation
     # ---------------------------------------------------------------- #
 
-    def _build_config(self) -> dict:
-        """Build the generation config dict from settings."""
-        from google.genai import types  # noqa: PLC0415
-        return types.GenerateContentConfig(
-            temperature=settings.GEMINI_TEMPERATURE,
-            max_output_tokens=settings.GEMINI_MAX_TOKENS,
-            top_p=settings.GEMINI_TOP_P,
-            top_k=settings.GEMINI_TOP_K,
-        )
-
     def _call_api(self, prompt: str) -> GenerationResult:
         """
-        Synchronous Gemini API call.
-        Called from ``generate()`` via run_in_threadpool.
+        Synchronous Groq API call (run in thread pool by generate()).
+
+        The system instruction is embedded in the prompt string by the
+        prompt templates, so we send it as a single user message.
         """
         self._ensure_ready()
         t0 = time.perf_counter()
 
-        response = self._native_client.models.generate_content(  # type: ignore[union-attr]
-            model=settings.GEMINI_MODEL,
-            contents=prompt,
-            config=self._build_config(),
+        completion = self._native_client.chat.completions.create(  # type: ignore[union-attr]
+            model=settings.GROQ_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=settings.GROQ_TEMPERATURE,
+            max_tokens=settings.GROQ_MAX_TOKENS,
         )
 
         elapsed_ms = (time.perf_counter() - t0) * 1000
-
-        # Extract token usage metadata
-        usage = getattr(response, "usage_metadata", None)
-        prompt_tokens   = getattr(usage, "prompt_token_count", 0) or 0
-        response_tokens = getattr(usage, "candidates_token_count", 0) or 0
-        total_tokens    = getattr(usage, "total_token_count", 0) or (
-            prompt_tokens + response_tokens
-        )
-        finish_reason = ""
-        if response.candidates:
-            finish_reason = str(
-                getattr(response.candidates[0], "finish_reason", "")
-            )
+        text = completion.choices[0].message.content or ""
+        usage = completion.usage
+        prompt_tokens   = usage.prompt_tokens    if usage else 0
+        response_tokens = usage.completion_tokens if usage else 0
+        total_tokens    = usage.total_tokens      if usage else 0
+        finish_reason   = completion.choices[0].finish_reason or ""
 
         logger.info(
-            "Gemini: %.0fms | tokens: %d prompt + %d response = %d total | finish=%s",
+            "Groq: %.0fms | tokens: %d prompt + %d response = %d total | finish=%s",
             elapsed_ms, prompt_tokens, response_tokens, total_tokens, finish_reason,
         )
-
         return GenerationResult(
-            text=response.text or "",
-            model=settings.GEMINI_MODEL,
+            text=text,
+            model=settings.GROQ_MODEL,
             prompt_tokens=prompt_tokens,
             response_tokens=response_tokens,
             total_tokens=total_tokens,
@@ -191,36 +173,31 @@ class GeminiClient:
         retries: int = 0,
     ) -> GenerationResult:
         """
-        Send a prompt to Gemini and return the generated text.
+        Send a prompt to Groq and return the generated text.
 
-        Runs the synchronous SDK call in a thread pool to keep
-        the FastAPI event loop non-blocking.
+        Runs the synchronous SDK call in a thread pool so the FastAPI
+        event loop stays non-blocking.
 
         Args:
-            prompt:  Full prompt string (system instruction + context + task).
-            retries: Number of retry attempts already made (internal).
+            prompt:  Full prompt string.
+            retries: Internal retry counter.
 
         Returns:
             :class:`GenerationResult` with text and token metadata.
-
-        Raises:
-            :class:`GeminiConfigException`: API key not set or SDK missing.
-            :class:`GeminiAPIException`:    API returned an error.
-            :class:`GeminiTimeoutException`: Request exceeded timeout.
         """
-        max_retries = settings.GEMINI_MAX_RETRIES
+        max_retries = settings.GROQ_MAX_RETRIES
 
         try:
             result = await asyncio.wait_for(
                 run_in_threadpool(self._call_api, prompt),
-                timeout=float(settings.GEMINI_TIMEOUT),
+                timeout=float(settings.GROQ_TIMEOUT),
             )
             return result
 
         except asyncio.TimeoutError:
             if retries < max_retries:
-                logger.warning("Gemini timeout — retry %d/%d", retries + 1, max_retries)
-                await asyncio.sleep(2 ** retries)  # exponential back-off
+                logger.warning("Groq timeout — retry %d/%d", retries + 1, max_retries)
+                await asyncio.sleep(2 ** retries)
                 return await self.generate(prompt, retries=retries + 1)
             raise GeminiTimeoutException()
 
@@ -229,66 +206,59 @@ class GeminiClient:
 
         except Exception as exc:
             err_str = str(exc)
-            if retries < max_retries and (
-                "429" in err_str or "rate" in err_str.lower() or "503" in err_str
+            # Retry on rate-limit and transient server errors
+            if retries < max_retries and any(
+                code in err_str for code in ("429", "503", "rate_limit")
             ):
                 wait = 2 ** (retries + 1)
                 logger.warning(
-                    "Gemini transient error (%s) — retry %d/%d in %ds",
+                    "Groq transient error (%s) — retry %d/%d in %ds",
                     exc.__class__.__name__, retries + 1, max_retries, wait,
                 )
                 await asyncio.sleep(wait)
                 return await self.generate(prompt, retries=retries + 1)
 
-            logger.error("Gemini API error: %s", exc)
-            raise GeminiAPIException(f"Gemini request failed: {exc}") from exc
+            logger.error("Groq API error: %s", exc)
+            raise GeminiAPIException(f"LLM request failed: {exc}") from exc
 
     # ---------------------------------------------------------------- #
     # Streaming
     # ---------------------------------------------------------------- #
 
     def _stream_api(self, prompt: str):
-        """Synchronous Gemini streaming generator (run in executor)."""
+        """Synchronous Groq streaming generator."""
         self._ensure_ready()
-        for chunk in self._native_client.models.generate_content_stream(  # type: ignore[union-attr]
-            model=settings.GEMINI_MODEL,
-            contents=prompt,
-            config=self._build_config(),
-        ):
-            if chunk.text:
-                yield chunk.text
+        stream = self._native_client.chat.completions.create(  # type: ignore[union-attr]
+            model=settings.GROQ_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=settings.GROQ_TEMPERATURE,
+            max_tokens=settings.GROQ_MAX_TOKENS,
+            stream=True,
+        )
+        for chunk in stream:
+            delta = chunk.choices[0].delta.content
+            if delta:
+                yield delta
 
     async def stream(self, prompt: str) -> AsyncGenerator[str, None]:
-        """
-        Async generator that yields text chunks as they arrive from Gemini.
-
-        Suitable for Server-Sent Events (SSE) endpoints.
-
-        Args:
-            prompt: Full prompt string.
-
-        Yields:
-            Text chunk strings.
-        """
+        """Async generator that yields text chunks as they arrive from Groq."""
         self._ensure_ready()
         loop = asyncio.get_running_loop()
-
-        # Stream via a blocking iterator run in the executor
         import concurrent.futures  # noqa: PLC0415
+
+        queue: asyncio.Queue[Optional[str]] = asyncio.Queue()
+
+        def _run():
+            try:
+                for chunk in self._stream_api(prompt):
+                    loop.call_soon_threadsafe(queue.put_nowait, chunk)
+            except Exception as exc:
+                logger.error("Groq stream error: %s", exc)
+            finally:
+                loop.call_soon_threadsafe(queue.put_nowait, None)
+
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            queue: asyncio.Queue[Optional[str]] = asyncio.Queue()
-
-            def _run():
-                try:
-                    for chunk in self._stream_api(prompt):
-                        loop.call_soon_threadsafe(queue.put_nowait, chunk)
-                except Exception as exc:
-                    logger.error("Gemini stream error: %s", exc)
-                finally:
-                    loop.call_soon_threadsafe(queue.put_nowait, None)  # sentinel
-
-            executor.submit(_run)
-
+            future = executor.submit(_run)
             while True:
                 item = await queue.get()
                 if item is None:
@@ -300,35 +270,33 @@ class GeminiClient:
     # ---------------------------------------------------------------- #
 
     async def health_check(self) -> dict:
-        """
-        Verify that the Gemini API is reachable and the key is valid.
-
-        Returns:
-            Dict with ``status``, ``model``, and ``message`` keys.
-        """
-        if not settings.GEMINI_API_KEY:
+        """Verify Groq API is reachable and the key is valid."""
+        if not settings.GROQ_API_KEY:
             return {
                 "status": "unhealthy",
-                "model": settings.GEMINI_MODEL,
-                "message": "GEMINI_API_KEY is not configured.",
+                "model": settings.GROQ_MODEL,
+                "message": "GROQ_API_KEY is not configured.",
                 "api_key_configured": False,
             }
         try:
-            result = await self.generate("Reply with exactly: OK")
+            result = await self.generate("Reply with exactly the word: OK")
             return {
                 "status": "healthy",
-                "model": settings.GEMINI_MODEL,
-                "message": f"Gemini API is reachable. Latency: {result.latency_ms:.0f}ms",
+                "model": settings.GROQ_MODEL,
+                "message": f"Groq API is reachable. Latency: {result.latency_ms:.0f}ms",
                 "api_key_configured": True,
             }
         except Exception as exc:
             return {
                 "status": "unhealthy",
-                "model": settings.GEMINI_MODEL,
+                "model": settings.GROQ_MODEL,
                 "message": str(exc),
                 "api_key_configured": True,
             }
 
 
-# Module-level singleton
-gemini_client = GeminiClient()
+# ------------------------------------------------------------------ #
+# Module-level singleton (backward-compatible name)
+# ------------------------------------------------------------------ #
+GeminiClient = LLMClient   # alias kept so existing imports don't break
+gemini_client = LLMClient()

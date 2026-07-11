@@ -8,7 +8,7 @@ import { useAuth } from '../../context/AuthContext'
 const NAV = [
   { to: '/dashboard',  icon: Home,          label: 'Dashboard' },
   { to: '/upload',     icon: Upload,         label: 'Upload' },
-  { to: '/reports',    icon: FileText,        label: 'Reports',  disabled: true },
+  { to: '/reports',    icon: FileText,        label: 'Reports' },
   { to: '/profile',    icon: User,           label: 'Profile' },
   { to: '/settings',   icon: Settings,       label: 'Settings', disabled: true },
 ]
