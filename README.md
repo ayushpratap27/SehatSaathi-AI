@@ -18,7 +18,8 @@ SehatSaathi-AI helps patients understand complex medical reports in plain, simpl
 | **Phase 4** | Medical Analysis Engine (reference ranges + insights) | ✅ Complete |
 | **Phase 5** | Gemini AI layer (summary, explanation, chat) | ✅ Complete |
 | **Phase 6** | RAG pipeline (FAISS + Gemini embeddings) | ✅ Complete |
-| Phase 7 | Streamlit MVP frontend | 🔜 Next |
+| **Phase 7** | Authentication, database, user accounts, dashboard | ✅ Complete |
+| Phase 8 | Streamlit MVP frontend | 🔜 Next |
 | Phase 6 | Intelligent chat assistant | 🔜 Planned |
 | Phase 7 | Streamlit MVP frontend | 🔜 Planned |
 | Phase 8 | Authentication & user management | 🔜 Planned |

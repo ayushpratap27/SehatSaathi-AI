@@ -8,7 +8,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import Boolean, DateTime, String
+from sqlalchemy import Boolean, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base, TimestampMixin, _new_uuid
@@ -46,7 +46,7 @@ class RefreshToken(Base):
     __tablename__ = "refresh_tokens"
 
     id:         Mapped[str]      = mapped_column(String(36), primary_key=True, default=_new_uuid)
-    user_id:    Mapped[str]      = mapped_column(String(36), nullable=False, index=True)
+    user_id:    Mapped[str]      = mapped_column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     jti:        Mapped[str]      = mapped_column(String(36), unique=True, index=True, nullable=False)
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     is_revoked: Mapped[bool]     = mapped_column(Boolean, default=False, nullable=False)

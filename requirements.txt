@@ -78,8 +78,13 @@ google-genai>=1.0.0,<2.0.0            # Official Google GenAI SDK (Gemini 2.5 Fl
 faiss-cpu>=1.9.0,<2.0.0              # FAISS vector similarity search (use faiss-gpu for CUDA)
 
 # ---------------------------------------------------------------------------
-# Phase 8: Security  (uncomment when starting Phase 8)
+# Phase 7: Authentication & database  ✅ Active
 # ---------------------------------------------------------------------------
-# bcrypt>=4.2.0,<5.0.0
-# PyJWT>=2.9.0,<3.0.0
-# slowapi>=0.1.9,<1.0.0              # rate limiting
+sqlalchemy>=2.0.0,<3.0.0             # async ORM
+alembic>=1.14.0,<2.0.0               # database migrations
+aiosqlite>=0.20.0,<1.0.0             # async SQLite driver (dev/test)
+asyncpg>=0.30.0,<1.0.0               # async PostgreSQL driver (production)
+greenlet>=3.0.0,<4.0.0               # required by SQLAlchemy async
+PyJWT>=2.9.0,<3.0.0                  # JWT creation and verification
+bcrypt>=4.2.0,<5.0.0                 # password hashing
+email-validator>=2.2.0,<3.0.0        # pydantic EmailStr validation
