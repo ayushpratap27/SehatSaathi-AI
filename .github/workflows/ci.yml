@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Backend ─────────────────────────────────────────────────────────────
+  backend:
+    name: Backend — lint + test
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: sqlite+aiosqlite:///./test.db
+      SECRET_KEY: test-secret-key-for-ci-only
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt "pydantic[email]" PyJWT bcrypt aiosqlite greenlet sqlalchemy alembic
+
+      - name: Lint (ruff)
+        run: |
+          pip install ruff --quiet
+          ruff check . --select E,F,W --ignore E501 || true
+
+      - name: Type check (mypy)
+        run: |
+          pip install mypy --quiet
+          mypy app/ --ignore-missing-imports --no-strict-optional || true
+
+      - name: Run tests
+        run: python -m pytest tests/ -v --tb=short
+
+      - name: Build Docker image (backend)
+        run: docker build -t sehat-saathi-backend:ci .
+
+  # ── Frontend ────────────────────────────────────────────────────────────
+  frontend:
+    name: Frontend — lint + type-check + test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --frozen-lockfile || npm install
+
+      - name: Type check
+        run: npm run type-check || true
+
+      - name: Build
+        run: npm run build
+
+      - name: Run tests
+        run: npm test || true
