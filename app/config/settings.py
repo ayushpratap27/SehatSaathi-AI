@@ -87,7 +87,7 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------ #
     # Groq LLM  (Phase 5 — replaces Gemini text generation)
     # ------------------------------------------------------------------ #
-    GROQ_API_KEY: str = ""
+    GROQ_API_KEY: str = ""                         # Set via GROQ_API_KEY env var or .env file
     GROQ_MODEL: str = "llama-3.3-70b-versatile"   # fast, capable 70B model
     GROQ_TEMPERATURE: float = 0.3
     GROQ_MAX_TOKENS: int = 4096
@@ -115,9 +115,9 @@ class Settings(BaseSettings):
     # Now uses sentence-transformers locally — no API key required
     # ------------------------------------------------------------------ #
     GEMINI_EMBEDDING_MODEL: str = "models/text-embedding-004"  # kept for reference
-    EMBEDDING_MODEL: str = "all-MiniLM-L6-v2"     # local model, no API key needed
-    EMBEDDING_DIMENSION: int = 384                  # dimension for all-MiniLM-L6-v2
-    GEMINI_EMBEDDING_DIMENSION: int = 384           # alias kept for compatibility
+    EMBEDDING_MODEL: str = "allenai-specter"       # scientific domain embeddings (768-dim)
+    EMBEDDING_DIMENSION: int = 768                  # allenai-specter output dimension
+    GEMINI_EMBEDDING_DIMENSION: int = 768           # alias kept for compatibility
 
     # FAISS / vector store
     VECTOR_STORE_DIR: str = "data/vector_stores"
