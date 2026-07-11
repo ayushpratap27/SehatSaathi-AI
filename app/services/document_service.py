@@ -99,8 +99,13 @@ class DocumentService:
         if is_scanned:
             logger.info("Scanned PDF detected → OCR: '%s'", original_filename)
             text, method = self._run_ocr_on_pdf(path)
+            # OCR output: collapse single newlines (words may break across lines)
+            cleaned = clean_text(text, preserve_line_breaks=False)
+        else:
+            # Digital PDF: preserve line breaks so the NER / lab extractor
+            # can read the multi-line structure (test name → value → reference)
+            cleaned = clean_text(text, preserve_line_breaks=True)
 
-        cleaned = clean_text(text)
         return self._build_result(original_filename, pages, is_scanned, cleaned, method)
 
     def _process_image(

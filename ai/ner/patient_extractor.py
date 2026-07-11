@@ -18,8 +18,19 @@ logger = logging.getLogger(__name__)
 
 # Explicit label→value patterns for structured report headers
 _NAME_PATTERNS = [
-    re.compile(r"patient\s*(?:name|'s\s*name)?\s*[:/]\s*([A-Za-z][A-Za-z\s\.]{1,60})", re.IGNORECASE),
-    re.compile(r"name\s*[:/]\s*([A-Za-z][A-Za-z\s\.]{1,60})", re.IGNORECASE),
+    # "Patient Name: John Doe" — stop before known field labels or digits
+    re.compile(
+        r"patient\s*(?:name|'s\s*name)?\s*[:/]\s*"
+        r"([A-Za-z][A-Za-z\s\.]{1,50}?)"
+        r"(?=\s*(?:Age|Gender|Sex|DOB|D\.O\.B|Date|ID|Mobile|Phone|\d|$|\n))",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"name\s*[:/]\s*"
+        r"([A-Za-z][A-Za-z\s\.]{1,50}?)"
+        r"(?=\s*(?:Age|Gender|Sex|DOB|Date|\d|$|\n))",
+        re.IGNORECASE,
+    ),
     re.compile(r"^name\s+([A-Za-z][A-Za-z\s\.]{1,60})$", re.IGNORECASE | re.MULTILINE),
 ]
 

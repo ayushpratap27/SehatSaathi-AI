@@ -39,7 +39,7 @@ _UNIT_SLASH = re.compile(r"(\w)\s*/\s*(\w)")
 _NON_PRINTABLE = re.compile(r"[^\x09\x0A\x20-\x7E\u00C0-\u024F]")
 
 
-def clean_text(text: str) -> str:
+def clean_text(text: str, preserve_line_breaks: bool = False) -> str:
     """
     Normalise and clean text extracted from a medical document.
 
@@ -47,7 +47,9 @@ def clean_text(text: str) -> str:
     1. **Unicode normalisation** (NFKC) — resolves ligatures, halfwidth chars, etc.
     2. **Artefact removal** — strips OCR table-rule characters (``____``, ``||||``, ...).
     3. **Hyphenated line-break merging** — ``hemo-\\nglobin`` → ``hemoglobin``.
-    4. **Single newline → space** — preserves paragraph breaks (≥ 2 newlines).
+    4. **Single newline → space** — only when ``preserve_line_breaks=False`` (OCR output).
+       When ``True`` (digital PDFs), single newlines are kept so the lab extractor
+       can read the multi-line structure.
     5. **Excess newlines** — 3+ consecutive newlines become 2.
     6. **Multiple spaces/tabs** → single space per line.
     7. **Per-line strip** — trims leading/trailing whitespace from each line.
@@ -55,7 +57,10 @@ def clean_text(text: str) -> str:
     9. **Non-printable character removal** — strips control characters.
 
     Args:
-        text: Raw text from a PDF extractor or OCR engine.
+        text:                  Raw text from a PDF extractor or OCR engine.
+        preserve_line_breaks:  When ``True``, single newlines are kept intact.
+                               Use for digital PDF text where line structure is meaningful.
+                               Default ``False`` preserves original OCR-merging behaviour.
 
     Returns:
         Cleaned, normalised text string. Returns ``""`` for empty/None input.
@@ -68,7 +73,10 @@ def clean_text(text: str) -> str:
     text = unicodedata.normalize("NFKC", text)
     text = _ARTIFACTS.sub(" ", text)
     text = _HYPHEN_BREAK.sub("", text)
-    text = _SINGLE_NL.sub(" ", text)
+
+    if not preserve_line_breaks:
+        text = _SINGLE_NL.sub(" ", text)
+
     text = _EXCESS_NL.sub("\n\n", text)
     text = _MULTI_SPACE.sub(" ", text)
     text = "\n".join(line.strip() for line in text.split("\n"))
@@ -76,5 +84,5 @@ def clean_text(text: str) -> str:
     text = _NON_PRINTABLE.sub("", text)
 
     result = text.strip()
-    logger.debug("clean_text: %d → %d chars", original_len, len(result))
+    logger.debug("clean_text: %d → %d chars (preserve_lines=%s)", original_len, len(result), preserve_line_breaks)
     return result
