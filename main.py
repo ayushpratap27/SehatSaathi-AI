@@ -41,6 +41,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     logger.info("Starting SehatSaathi-AI v%s [%s]", settings.APP_VERSION, settings.ENV)
     logger.info("API docs available at http://%s:%s/docs", settings.HOST, settings.PORT)
 
+    # Initialise database tables (dev / test — production uses Alembic)
+    if settings.ENV != "production":
+        from app.database.init_db import init_db  # noqa: PLC0415
+        await init_db()
+
     yield
 
     # --- shutdown ---
