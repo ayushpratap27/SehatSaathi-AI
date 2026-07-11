@@ -15,8 +15,8 @@ SehatSaathi-AI helps patients understand complex medical reports in plain, simpl
 | **Phase 1** | Foundation & project scaffolding | ✅ Complete |
 | **Phase 2** | Document ingestion pipeline (PDF + OCR) | ✅ Complete |
 | **Phase 3** | Medical information extraction (NER + structured JSON) | ✅ Complete |
-| Phase 4 | Vector store & RAG pipeline | 🔜 Next |
-| Phase 5 | AI report understanding & summaries | 🔜 Planned |
+| **Phase 4** | Medical Analysis Engine (reference ranges + insights) | ✅ Complete |
+| Phase 5 | AI report understanding & summaries | 🔜 Next |
 | Phase 6 | Intelligent chat assistant | 🔜 Planned |
 | Phase 7 | Streamlit MVP frontend | 🔜 Planned |
 | Phase 8 | Authentication & user management | 🔜 Planned |
@@ -158,7 +158,8 @@ The Streamlit app will open at http://localhost:8501
 | POST | `/api/v1/upload/` | Upload & store a medical report | ✅ Phase 2 |
 | POST | `/api/v1/report/extract` | Extract text from a report | ✅ Phase 2 |
 | **POST** | **`/api/v1/report/parse`** | **Structured JSON from report** | **✅ Phase 3** |
-| GET | `/api/v1/report/{id}` | Get structured report data | 🔜 Phase 4 |
+| **POST** | **`/api/v1/analysis/analyze`** | **Medical analysis from ParsedReport** | **✅ Phase 4** |
+| GET | `/api/v1/report/{id}` | Get structured report data | 🔜 Phase 5 |
 | GET | `/api/v1/analysis/{id}/entities` | Medical entities | 🔜 Phase 4 |
 | GET | `/api/v1/analysis/{id}/lab-values` | Lab results | 🔜 Phase 4 |
 | POST | `/api/v1/chat/session` | Create chat session | 🔜 Phase 6 |

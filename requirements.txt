@@ -63,12 +63,9 @@ spacy>=3.7.0,<4.0.0
 #   pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.4/en_core_sci_md-0.5.4.tar.gz
 
 # ---------------------------------------------------------------------------
-# Phase 4: Vector store & RAG  (uncomment when starting Phase 4)
+# Phase 4: Medical Analysis Engine  ✅ Active
 # ---------------------------------------------------------------------------
-# sentence-transformers>=3.3.0,<4.0.0
-# faiss-cpu>=1.9.0,<2.0.0             # use faiss-gpu if CUDA is available
-# langchain>=0.3.0,<1.0.0
-# langchain-community>=0.3.0,<1.0.0
+pyyaml>=6.0.0,<7.0.0                 # load reference range YAML configs
 
 # ---------------------------------------------------------------------------
 # Phase 5+: LLM clients  (uncomment as needed)
