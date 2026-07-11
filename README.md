@@ -1,43 +1,50 @@
 # SehatSaathi-AI
 
-**AI-powered Medical Report Understanding System**
+> **AI-powered Medical Report Understanding System** — helping patients understand their health reports in plain language.
 
-SehatSaathi-AI helps patients understand complex medical reports in plain, simple language using modern AI, NLP, and Retrieval-Augmented Generation (RAG) techniques.
-
-> ⚠️ **Disclaimer:** This is an informational tool only. It explains the contents of uploaded medical reports but does **not** diagnose, prescribe, or replace professional medical advice. Always consult a qualified healthcare professional for medical decisions.
+⚠️ **Medical Disclaimer:** SehatSaathi-AI is for informational purposes only. It does not provide medical diagnoses, prescriptions, or treatment advice. Always consult a qualified healthcare professional.
 
 ---
 
-## Project Status
+## Project Overview
 
-| Phase | Description | Status |
-|-------|-------------|--------|
-| **Phase 1** | Foundation & project scaffolding | ✅ Complete |
-| **Phase 2** | Document ingestion pipeline (PDF + OCR) | ✅ Complete |
-| **Phase 3** | Medical information extraction (NER + structured JSON) | ✅ Complete |
-| **Phase 4** | Medical Analysis Engine (reference ranges + insights) | ✅ Complete |
-| **Phase 5** | Gemini AI layer (summary, explanation, chat) | ✅ Complete |
-| **Phase 6** | RAG pipeline (FAISS + Gemini embeddings) | ✅ Complete |
-| **Phase 7** | Authentication, database, user accounts, dashboard | ✅ Complete |
-| Phase 8 | Streamlit MVP frontend | 🔜 Next |
-| Phase 6 | Intelligent chat assistant | 🔜 Planned |
-| Phase 7 | Streamlit MVP frontend | 🔜 Planned |
-| Phase 8 | Authentication & user management | 🔜 Planned |
-| Phase 9 | Testing, hardening & CI/CD | 🔜 Planned |
+SehatSaathi-AI is a production-ready, full-stack AI platform that transforms complex medical reports into clear, patient-friendly information. It supports PDF/image upload, OCR, medical NER, clinical analysis, AI summaries powered by Google Gemini 2.5 Flash, and a RAG-based chat interface.
 
 ---
 
-## Tech Stack
+## Architecture
+
+```
+Upload (PDF/Image)
+    ↓
+OCR (PaddleOCR / PyMuPDF)
+    ↓
+Medical Extraction (spaCy / SciSpaCy / Regex)
+    ↓
+Clinical Rule Engine (FAISS reference ranges)
+    ↓
+Gemini AI (Summary / Explanation / RAG Chat)
+    ↓
+React Frontend (Dashboard / Report Viewer / Chat)
+```
+
+---
+
+## Technology Stack
 
 | Layer | Technology |
-|-------|-----------|
+|---|---|
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS, TanStack Query |
 | Backend | Python 3.12, FastAPI, Uvicorn |
-| Config | Pydantic BaseSettings |
-| Database | SQLAlchemy + Alembic (SQLite dev / PostgreSQL prod) |
-| AI / NLP | spaCy, SciSpaCy, LangChain, FAISS, Sentence Transformers |
-| OCR | EasyOCR, PyMuPDF, pdfplumber |
-| Frontend | Streamlit (MVP) |
-| Infrastructure | Docker, GitHub Actions |
+| AI / NLP | Google Gemini 2.5 Flash, SciSpaCy, PaddleOCR, PyMuPDF |
+| Vector DB | FAISS (IndexFlatIP cosine similarity) |
+| Database | PostgreSQL (production), SQLite (development) |
+| Cache | Redis |
+| Auth | JWT (PyJWT + bcrypt) |
+| ORM | SQLAlchemy 2.x async + Alembic |
+| Proxy | Nginx |
+| Container | Docker + Docker Compose |
+| CI/CD | GitHub Actions |
 
 ---
 
@@ -45,185 +52,220 @@ SehatSaathi-AI helps patients understand complex medical reports in plain, simpl
 
 ```
 SehatSaathi-AI/
-├── app/                    # FastAPI application
-│   ├── api/v1/             # Versioned API routes
-│   │   └── endpoints/      # upload, report, analysis, chat, auth
-│   ├── config/             # Pydantic settings
-│   ├── core/               # Logging, exceptions
-│   ├── database/           # SQLAlchemy session (Phase 2)
-│   ├── models/             # ORM models (Phase 2)
-│   ├── schemas/            # Pydantic request/response models (Phase 2)
-│   ├── services/           # Business logic layer (Phase 2+)
-│   ├── middleware/         # FastAPI middleware (Phase 8)
-│   └── utils/              # Shared utilities
-├── ai/                     # AI module (Phase 2+)
-│   ├── ocr/                # OCR pipeline
-│   ├── preprocessing/      # Text cleaning
-│   ├── ner/                # Medical NER
-│   ├── summarization/      # Report summarization
-│   ├── rag/                # RAG pipeline
-│   └── embeddings/         # Sentence embeddings
-├── data/
-│   ├── uploads/            # Uploaded documents
-│   ├── processed/          # Processed outputs
-│   ├── temp/               # Temporary working files
-│   └── reference_ranges/   # Lab reference range configs
-├── frontend/               # Streamlit UI
-├── tests/                  # Unit & integration tests
-├── docs/                   # Documentation
-├── scripts/                # Utility scripts
-├── docker/                 # Docker configuration
-├── logs/                   # Application logs
-├── main.py                 # FastAPI entry point
-├── requirements.txt
-├── .env.example
-└── .gitignore
+├── frontend/                  # React 19 TypeScript SPA
+│   ├── src/
+│   │   ├── pages/             # Login, Dashboard, Upload, Report, Chat, Profile
+│   │   ├── components/        # UI, Layout, Auth components
+│   │   ├── services/          # API service layer (axios)
+│   │   ├── context/           # Auth context
+│   │   └── types/             # TypeScript type definitions
+│   └── Dockerfile
+├── app/                       # FastAPI application
+│   ├── api/v1/endpoints/      # REST API endpoints
+│   ├── auth/                  # JWT handler + dependencies
+│   ├── database/              # SQLAlchemy async session
+│   ├── models/                # ORM models (User, Report, Chat, etc.)
+│   ├── repositories/          # Database access layer
+│   ├── schemas/               # Pydantic schemas
+│   └── services/              # Business logic
+├── ai/
+│   ├── gemini/                # Gemini AI services (summary, chat, explain)
+│   ├── rag/                   # RAG pipeline (chunker, FAISS, retriever)
+│   ├── ner/                   # Medical NER extractors
+│   └── analysis/              # Clinical rule engine
+├── config/reference_ranges/   # YAML reference range configs
+├── alembic/                   # Database migrations
+├── tests/                     # pytest tests (unit + integration)
+├── nginx/                     # Nginx reverse proxy config
+├── docs/                      # Production checklist
+├── Makefile
+├── docker-compose.yml
+└── .github/workflows/ci.yml   # GitHub Actions CI
 ```
 
 ---
 
-## Getting Started
+## Completed Phases
+
+| Phase | Description | Status |
+|---|---|---|
+| 1 | Foundation & project scaffolding | ✅ Complete |
+| 2 | Document ingestion pipeline (PDF + OCR) | ✅ Complete |
+| 3 | Medical information extraction (NER + structured JSON) | ✅ Complete |
+| 4 | Medical Analysis Engine (reference ranges + insights) | ✅ Complete |
+| 5 | Gemini AI layer (summary, explanation, chat) | ✅ Complete |
+| 6 | RAG pipeline (FAISS + Gemini embeddings) | ✅ Complete |
+| 7 | Authentication, database, user accounts, dashboard | ✅ Complete |
+| 8 | React frontend, Docker, Redis, CI/CD, production-ready | ✅ Complete |
+
+---
+
+## Quick Start (Local Development)
 
 ### Prerequisites
 
-- Python 3.9 or higher (3.12 recommended)
-- pip
+- Python 3.12+
+- Node.js 22+
 - Git
-- **For OCR (scanned documents):** PaddleOCR requires `paddlepaddle` + `paddleocr`
 
-### 1. Clone the repository
+### 1. Clone and setup
 
 ```bash
 git clone https://github.com/ayushpratap27/SehatSaathi-AI.git
 cd SehatSaathi-AI
+make env       # copy .env.example → .env
+make install   # create venv + install Python deps
+make install-frontend
 ```
 
-### 2. Create a virtual environment
+### 2. Add your Gemini API key
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate        # macOS / Linux
-.venv\Scripts\activate           # Windows
+# Edit .env and set:
+GEMINI_API_KEY=your_key_here
+# Get a free API key at: https://aistudio.google.com/apikey
 ```
 
-### 3. Install dependencies
+### 3. Start the backend
 
 ```bash
-pip install -r requirements.txt
+source .venv/bin/activate
+uvicorn main:app --reload
+# API: http://localhost:8000
+# Docs: http://localhost:8000/docs
 ```
 
-### 4. Install PaddleOCR (required for scanned documents and images)
+### 4. Start the frontend
 
 ```bash
-# CPU version (works on macOS, Linux, Windows)
-pip install paddlepaddle paddleocr
-
-# PaddleOCR downloads model weights (~200 MB) on first use.
-# Ensure you have internet access when running OCR for the first time.
+cd frontend && npm run dev
+# Frontend: http://localhost:3000
 ```
-
-### 5. Set up environment variables
-
-```bash
-cp .env.example .env
-# Edit .env if you need non-default paths or settings
-```
-
-### 6. Start the backend
-
-```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-The API will be available at:
-- **Swagger UI:** http://localhost:8000/docs
-- **ReDoc:** http://localhost:8000/redoc
-- **Health check:** http://localhost:8000/health
-
-### 7. Start the frontend
-
-Open a new terminal (keep the backend running):
-
-```bash
-streamlit run frontend/app.py
-```
-
-The Streamlit app will open at http://localhost:8501
 
 ---
 
-## API Overview (Phase 3)
+## Docker Setup (Recommended)
 
-| Method | Endpoint | Description | Status |
-|--------|----------|-------------|--------|
-| GET | `/` | Application info | ✅ |
-| GET | `/health` | Health check | ✅ |
-| POST | `/api/v1/upload/` | Upload & store a medical report | ✅ Phase 2 |
-| POST | `/api/v1/report/extract` | Extract text from a report | ✅ Phase 2 |
-| **POST** | **`/api/v1/report/parse`** | **Structured JSON from report** | **✅ Phase 3** |
-| **POST** | **`/api/v1/analysis/analyze`** | **Medical analysis from ParsedReport** | **✅ Phase 4** |
-| **POST** | **`/api/v1/ai/summary`** | **AI executive summary (Gemini)** | **✅ Phase 5** |
-| **POST** | **`/api/v1/ai/explain`** | **Plain-language medical explanations** | **✅ Phase 5** |
-| **POST** | **`/api/v1/ai/chat`** | **Grounded Q&A with your report** | **✅ Phase 5** |
-| GET | `/api/v1/ai/health` | Gemini API connectivity check | ✅ Phase 5 |
-| POST | `/api/v1/ai/stream/summary` | SSE streaming summary | ✅ Phase 5 |
-| **POST** | **`/api/v1/rag/index`** | **Create FAISS index from report text** | **✅ Phase 6** |
-| **POST** | **`/api/v1/rag/search`** | **Retrieve relevant chunks** | **✅ Phase 6** |
-| **POST** | **`/api/v1/rag/chat`** | **Grounded RAG Q&A with citations** | **✅ Phase 6** |
-| GET | `/api/v1/report/{id}` | Get structured report data | 🔜 Phase 7 |
-| GET | `/api/v1/analysis/{id}/entities` | Medical entities | 🔜 Phase 4 |
-| GET | `/api/v1/analysis/{id}/lab-values` | Lab results | 🔜 Phase 4 |
-| POST | `/api/v1/chat/session` | Create chat session | 🔜 Phase 6 |
-| POST | `/api/v1/auth/register` | Register user | 🔜 Phase 8 |
-
-### `/parse` endpoint — two ways to call it
-
-**Option A — Upload a file:**
 ```bash
-curl -X POST http://localhost:8000/api/v1/report/parse \
-  -F "file=@blood_test.pdf"
+cp .env.example .env
+# Add GEMINI_API_KEY to .env
+
+docker compose up --build
 ```
 
-**Option B — Send extracted text directly (from Phase 2 `/extract`):**
-```bash
-curl -X POST http://localhost:8000/api/v1/report/parse \
-  -F "text=Patient Name: John Doe\nHemoglobin\n12.4 g/dL\nReference\n13.5-17.5"
-```
+Services:
+| Service | URL |
+|---|---|
+| Frontend (via Nginx) | http://localhost:80 |
+| Backend API | http://localhost:8000 |
+| Swagger Docs | http://localhost:8000/docs |
+| PostgreSQL | localhost:5432 |
+| Redis | localhost:6379 |
 
-### Example structured JSON response
+---
 
-```json
-{
-  "patient": { "name": "John Doe", "age": 45, "gender": "Male" },
-  "hospital": { "name": "ABC Hospital" },
-  "doctor": { "name": null },
-  "tests": [
-    { "test_name": "Hemoglobin", "value": 12.4, "unit": "g/dL",
-      "reference_range": "13.5-17.5", "status": "Low" },
-    { "test_name": "WBC Count", "value": 11200, "unit": "/uL",
-      "reference_range": "4000-11000", "status": "High" }
-  ],
-  "diagnosis": ["Iron Deficiency Anemia"],
-  "medicines": [{ "name": "Ferrous Sulfate", "dosage": "150mg", "frequency": "Once daily" }]
-}
-```
+## API Endpoints
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET | `/health` | No | Liveness probe |
+| GET | `/api/v1/ready` | No | Readiness probe |
+| POST | `/api/v1/auth/register` | No | Register account |
+| POST | `/api/v1/auth/login` | No | Login → tokens |
+| GET | `/api/v1/auth/me` | Yes | Current user |
+| POST | `/api/v1/reports/upload` | Yes | Upload report to DB |
+| GET | `/api/v1/reports` | Yes | List user's reports |
+| GET | `/api/v1/dashboard` | Yes | Dashboard stats |
+| POST | `/api/v1/report/extract` | No | Extract text (PDF/image) |
+| POST | `/api/v1/report/parse` | No | Structured JSON from text |
+| POST | `/api/v1/analysis/analyze` | No | Clinical analysis |
+| POST | `/api/v1/ai/summary` | No | AI executive summary |
+| POST | `/api/v1/ai/chat` | No | Basic AI Q&A |
+| POST | `/api/v1/rag/index` | No | Index document for RAG |
+| POST | `/api/v1/rag/chat` | No | RAG grounded Q&A |
 
 ---
 
 ## Running Tests
 
 ```bash
-pytest tests/ -v
+# Backend
+make test
+
+# Frontend
+make test-frontend
+
+# With CI
+make test-ci
 ```
 
 ---
 
-## Contributing
+## Database Migrations
 
-This project is developed incrementally. Each phase builds on the previous one while maintaining backward compatibility. See the phase table above for current status.
+```bash
+# Apply all migrations
+make migrate
+
+# Create a new migration
+make migrate-create NAME="add_new_column"
+
+# Rollback last migration
+make migrate-down
+```
+
+---
+
+## Environment Variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `GEMINI_API_KEY` | Yes | Google Gemini API key |
+| `SECRET_KEY` | Yes | JWT signing key (min 32 chars) |
+| `DATABASE_URL` | Yes | PostgreSQL or SQLite URL |
+| `REDIS_URL` | No | Redis connection URL |
+| `GEMINI_MODEL` | No | Default: `gemini-2.5-flash` |
+| `ENV` | No | `development` / `production` |
+
+---
+
+## Adding New Lab Tests
+
+Edit any YAML file in `config/reference_ranges/`:
+
+```yaml
+new_test:
+  display_name: "New Test"
+  aliases: [new test, nt]
+  unit: "units"
+  category: "Category"
+  description: "What this test measures."
+  ranges:
+    default:
+      min: 10.0
+      max: 50.0
+  critical:
+    low: 5.0
+    high: 100.0
+```
+
+No Python code changes required.
+
+---
+
+## Production Deployment
+
+See `docs/production_checklist.md` for a complete pre-deployment checklist.
+
+Key points:
+- Set `ENV=production` and `DEBUG=false`
+- Use PostgreSQL, not SQLite
+- Change all default secrets
+- Run `alembic upgrade head` instead of `init_db()`
+- Configure HTTPS via Nginx + Let's Encrypt
 
 ---
 
 ## License
 
-MIT License — see [LICENSE](LICENSE) for details.
+MIT — see [LICENSE](LICENSE) for details.

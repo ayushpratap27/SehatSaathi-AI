@@ -78,6 +78,12 @@ google-genai>=1.0.0,<2.0.0            # Official Google GenAI SDK (Gemini 2.5 Fl
 faiss-cpu>=1.9.0,<2.0.0              # FAISS vector similarity search (use faiss-gpu for CUDA)
 
 # ---------------------------------------------------------------------------
+# Phase 8: Production, caching, and security  ✅ Active
+# ---------------------------------------------------------------------------
+redis>=5.0.0,<6.0.0                  # Redis caching client
+ruff>=0.6.0,<1.0.0                   # fast Python linter (dev)
+
+# ---------------------------------------------------------------------------
 # Phase 7: Authentication & database  ✅ Active
 # ---------------------------------------------------------------------------
 sqlalchemy>=2.0.0,<3.0.0             # async ORM
