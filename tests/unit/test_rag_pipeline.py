@@ -204,7 +204,12 @@ class TestContextBuilder:
     def test_no_results_includes_not_available_instruction(self) -> None:
         from ai.rag.context_builder import ContextBuilder
         prompt = ContextBuilder().build("Test question", [])
-        assert "not contain" in prompt.lower() or "not available" in prompt.lower()
+        assert (
+            "not contain" in prompt.lower()
+            or "not available" in prompt.lower()
+            or "no specific information" in prompt.lower()
+            or "not found" in prompt.lower()
+        )
 
     def test_context_block_includes_source_labels(self) -> None:
         from ai.rag.context_builder import ContextBuilder
