@@ -108,9 +108,16 @@ class RAGChatService:
             )
 
         if not raw_results:
-            logger.info("RAG: no chunks above threshold → returning default answer")
+            logger.info("RAG: no chunks above threshold → answering from general knowledge")
+            # Build a no-context prompt so the LLM can still answer from general knowledge
+            no_ctx_prompt = self._ctx_builder.build(
+                question=question,
+                results=[],
+                history=trimmed_history,
+            )
+            gemini_result = await self._gemini.generate(no_ctx_prompt)
             return RAGChatResponse(
-                answer=_NO_CONTEXT_ANSWER,
+                answer=gemini_result.text.strip(),
                 sources=[],
                 retrieved_chunks=0,
                 confidence=0.0,

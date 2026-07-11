@@ -22,7 +22,7 @@ function Message({ msg }: { msg: ChatMessage }) {
         {isUser ? 'U' : 'AI'}
       </div>
 
-      {/* Bubble */}
+      {/* Bubble — sources and confidence removed */}
       <div
         className={`max-w-[75%] sm:max-w-2xl rounded-[16px] px-4 py-3 text-sm ${
           isUser ? 'rounded-tr-[4px]' : 'rounded-tl-[4px]'
@@ -37,25 +37,6 @@ function Message({ msg }: { msg: ChatMessage }) {
           <div className="prose prose-sm max-w-none" style={{ color: '#001e2b' }}>
             <ReactMarkdown>{msg.content}</ReactMarkdown>
           </div>
-        )}
-
-        {/* Citations */}
-        {msg.sources && msg.sources.length > 0 && (
-          <div className="mt-3 pt-3 border-t border-[#e1e5e8] space-y-1">
-            <p className="text-xs text-[#a8b3bc] font-medium">Sources</p>
-            {msg.sources.map((s, i) => (
-              <div key={i} className="text-xs text-[#5c6c7a] rounded-[6px] px-2 py-1"
-                style={{ backgroundColor: '#f9fbfa' }}>
-                <span className="font-medium">{s.section}</span>
-                {s.page && ` · Page ${s.page}`}
-                {' · '}
-                <span style={{ color: '#00684a' }}>{(s.score * 100).toFixed(0)}% match</span>
-              </div>
-            ))}
-          </div>
-        )}
-        {msg.confidence !== undefined && (
-          <p className="mt-2 text-xs text-[#a8b3bc]">Confidence: {(msg.confidence * 100).toFixed(0)}%</p>
         )}
       </div>
 
@@ -101,9 +82,22 @@ const SUGGESTIONS = [
 
 export default function ChatPage() {
   const { id: documentId } = useParams<{ id: string }>()
-  const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [input, setInput]       = useState('')
+  const storageKey = `chat-${documentId}`
+
+  // Restore messages from sessionStorage so chat persists on back navigation
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    try {
+      const saved = sessionStorage.getItem(storageKey)
+      return saved ? (JSON.parse(saved) as ChatMessage[]) : []
+    } catch { return [] }
+  })
+  const [input, setInput] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
+
+  // Persist to sessionStorage on every update
+  useEffect(() => {
+    sessionStorage.setItem(storageKey, JSON.stringify(messages))
+  }, [messages, storageKey])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -135,6 +129,11 @@ export default function ChatPage() {
     sendMessage(q)
   }
 
+  const clearChat = () => {
+    setMessages([])
+    sessionStorage.removeItem(storageKey)
+  }
+
   return (
     <div className="flex flex-col animate-fade-in" style={{ height: 'calc(100vh - 9rem)' }}>
 
@@ -143,10 +142,10 @@ export default function ChatPage() {
         <div>
           <h1 className="text-xl font-semibold text-[#001e2b]">Chat with Report</h1>
           <p className="text-[#a8b3bc] text-xs mt-0.5">
-            Answers grounded in your report · Doc: {documentId?.slice(0, 8)}…
+            Ask anything about your report · Doc: {documentId?.slice(0, 8)}…
           </p>
         </div>
-        <button onClick={() => setMessages([])} className="btn-secondary text-xs px-3 py-1.5 self-start sm:self-auto">
+        <button onClick={clearChat} className="btn-secondary text-xs px-3 py-1.5 self-start sm:self-auto">
           Clear chat
         </button>
       </div>
@@ -158,7 +157,7 @@ export default function ChatPage() {
             <div className="w-14 h-14 rounded-[12px] bg-[#f4f7f6] flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl">🩺</span>
             </div>
-            <p className="text-[#5c6c7a] text-sm mb-5">Ask anything about your medical report.</p>
+            <p className="text-[#5c6c7a] text-sm mb-5">Ask anything about your medical report or health in general.</p>
             <div className="flex flex-wrap justify-center gap-2">
               {SUGGESTIONS.map((q) => (
                 <button
@@ -198,7 +197,7 @@ export default function ChatPage() {
         </button>
       </div>
       <p className="mt-2 text-xs text-[#a8b3bc] text-center">
-        Answers are grounded in report data only. Always consult a healthcare professional.
+        Always consult a healthcare professional for medical decisions.
       </p>
     </div>
   )

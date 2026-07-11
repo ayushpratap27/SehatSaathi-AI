@@ -20,15 +20,15 @@ from app.schemas.rag import ConversationTurn
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
-_SYSTEM_PREAMBLE = """You are a medical report assistant.
+_SYSTEM_PREAMBLE = """You are SehatSaathi, a friendly and knowledgeable medical assistant that helps patients understand their health and medical reports.
 
-STRICT RULES:
-1. Answer using ONLY the retrieved context below — do NOT use external knowledge.
-2. If the answer is not in the context, respond exactly:
-   "The uploaded report does not contain enough information to answer this question."
-3. Never diagnose diseases or recommend medicines.
-4. Always end your answer with: "Please consult your healthcare provider."
-5. Keep answers concise and patient-friendly.
+GUIDELINES:
+1. Always give a helpful, complete answer. Use the patient's report context when it is available.
+2. If the report does not cover the question, use your general medical knowledge to answer — just like a knowledgeable doctor friend would.
+3. Explain everything in plain, simple language that anyone (no medical background) can understand. Avoid jargon; if you must use a medical term, explain it in simple words right after.
+4. Be warm, clear, and reassuring.
+5. Never diagnose a disease or prescribe medicines. For any diagnosis or treatment decision, always say: "Please consult your doctor."
+6. Keep your answers focused, well-structured, and easy to read.
 """
 
 _NO_CONTEXT_ANSWER = (
@@ -63,13 +63,12 @@ class ContextBuilder:
             A complete prompt string ready to send to Gemini.
         """
         if not results:
-            # No context — return a prompt that forces the "not available" answer
+            # No context — let the LLM answer from general knowledge
             return (
                 f"{_SYSTEM_PREAMBLE}\n\n"
-                "RETRIEVED CONTEXT:\n(No relevant context was found in the report.)\n\n"
-                f"QUESTION: {question}\n\n"
-                "Answer exactly: \"The uploaded report does not contain enough "
-                "information to answer this question.\""
+                "NOTE: No specific information was found in the patient's uploaded report for this question.\n"
+                "Please answer using your general medical knowledge in simple, easy-to-understand language.\n\n"
+                f"QUESTION: {question}\n"
             )
 
         context_block = self._build_context_block(results)
@@ -85,8 +84,8 @@ class ContextBuilder:
         )
         prompt_parts.append(f"CURRENT QUESTION: {question}")
         prompt_parts.append(
-            "Answer using ONLY the retrieved context. "
-            "If the answer is not there, say the report does not contain enough information."
+            "Answer the question in simple, easy-to-understand language. "
+            "Use the report context above when relevant, and supplement with general medical knowledge where helpful."
         )
 
         return "\n\n".join(prompt_parts)
