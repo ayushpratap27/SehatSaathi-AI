@@ -95,6 +95,25 @@ class Settings(BaseSettings):
     GEMINI_MAX_RETRIES: int = 2          # retries on transient errors
 
     # ------------------------------------------------------------------ #
+    # Gemini Embeddings + RAG  (Phase 6)
+    # ------------------------------------------------------------------ #
+    GEMINI_EMBEDDING_MODEL: str = "models/text-embedding-004"
+    GEMINI_EMBEDDING_DIMENSION: int = 768
+
+    # FAISS / vector store
+    VECTOR_STORE_DIR: str = "data/vector_stores"
+
+    # Chunking
+    CHUNK_SIZE_WORDS: int = 600
+    CHUNK_OVERLAP_WORDS: int = 100
+
+    # Retrieval
+    RAG_TOP_K: int = 5
+    RAG_SIMILARITY_THRESHOLD: float = 0.25   # minimum cosine score to include chunk
+    RAG_MAX_CONTEXT_CHARS: int = 8000        # hard limit on chars sent to Gemini
+    RAG_CONVERSATION_HISTORY_LIMIT: int = 5  # number of prior turns kept
+
+    # ------------------------------------------------------------------ #
     # Security  (Phase 8)
     # ------------------------------------------------------------------ #
     SECRET_KEY: str = "change-this-to-a-long-random-secret-in-production"

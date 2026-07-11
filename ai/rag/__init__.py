@@ -1,1 +1,1 @@
-"""Retrieval-Augmented Generation pipeline — LangChain + FAISS (Phase 4)."""
+"""AI RAG package — Phase 6 Retrieval-Augmented Generation pipeline."""
