@@ -13,21 +13,23 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.dependencies import get_current_active_user
 from app.database.session import get_db
 from app.models.user import User
 from app.repositories.chat_repo import chat_message_repository, chat_session_repository
+from app.schemas.auth import MessageResponse
 from app.schemas.dashboard import (
     ChatHistoryItem,
     ChatSessionResponse,
     ReportDetailResponse,
     ReportListResponse,
 )
-from app.schemas.auth import MessageResponse
+from app.services.pipeline_service import run_report_pipeline
 from app.services.report_service import report_service
+from app.utils.validators import validate_upload_file
 from app.utils.validators import validate_upload_file
 
 logger = logging.getLogger(__name__)
@@ -74,18 +76,27 @@ async def list_reports(
     summary="Upload a new medical report",
 )
 async def upload_report(
+    background_tasks: BackgroundTasks,
     file:         UploadFile   = File(..., description="PDF or image medical report"),
     current_user: User         = Depends(get_current_active_user),
     db:           AsyncSession = Depends(get_db),
 ) -> ReportDetailResponse:
     """
-    Upload a report, store it on disk, and create a database record.
-
-    The record is linked to the authenticated user. Use the returned ``id``
-    as ``document_id`` when calling ``/rag/index`` and ``/rag/chat``.
+    Upload a report, store it on disk, create a database record,
+    and immediately trigger the full background processing pipeline:
+      extract → parse → analyze → RAG index → status: done
     """
     content = await validate_upload_file(file)
     report  = await report_service.create_report(db, current_user.id, file, content)
+
+    # Kick off the pipeline in the background (non-blocking)
+    background_tasks.add_task(
+        run_report_pipeline,
+        report.id,
+        report.file_path,
+        report.original_filename,
+    )
+
     return ReportDetailResponse(
         id=report.id,
         original_filename=report.original_filename,
