@@ -34,13 +34,20 @@ pytest-asyncio>=0.24.0,<1.0.0
 httpx>=0.28.0,<1.0.0                  # async test client for FastAPI
 
 # ---------------------------------------------------------------------------
-# Phase 2: Document processing  (uncomment when starting Phase 2)
+# Phase 2: Document processing  ✅ Active
 # ---------------------------------------------------------------------------
-# PyMuPDF>=1.24.0,<2.0.0
-# pdfplumber>=0.11.0,<1.0.0
-# easyocr>=1.7.0,<2.0.0
-# Pillow>=11.0.0,<12.0.0
-# opencv-python-headless>=4.10.0,<5.0.0
+PyMuPDF>=1.24.0,<2.0.0               # primary PDF text extraction
+pdfplumber>=0.11.0,<1.0.0            # fallback PDF extraction (tables)
+Pillow>=11.0.0,<12.0.0               # image I/O + test fixtures
+opencv-python-headless>=4.10.0,<5.0.0  # image preprocessing (no GUI)
+numpy>=1.26.0,<3.0.0                 # array operations for OCR pipeline
+
+# PaddleOCR — install separately due to size & platform-specific wheels:
+#   pip install paddlepaddle paddleocr
+#
+# macOS (Apple Silicon):   pip install paddlepaddle paddleocr
+# Linux CPU:               pip install paddlepaddle paddleocr
+# Linux GPU (CUDA 11.7):   pip install paddlepaddle-gpu==2.6.1 paddleocr
 
 # ---------------------------------------------------------------------------
 # Phase 3: Medical NLP  (uncomment when starting Phase 3)

@@ -13,8 +13,8 @@ SehatSaathi-AI helps patients understand complex medical reports in plain, simpl
 | Phase | Description | Status |
 |-------|-------------|--------|
 | **Phase 1** | Foundation & project scaffolding | ✅ Complete |
-| Phase 2 | Document upload & PDF/OCR processing | 🔜 Next |
-| Phase 3 | Medical NLP & lab value extraction | 🔜 Planned |
+| **Phase 2** | Document ingestion pipeline (PDF + OCR) | ✅ Complete |
+| Phase 3 | Medical NLP & lab value extraction | 🔜 Next |
 | Phase 4 | Vector store & RAG pipeline | 🔜 Planned |
 | Phase 5 | AI report understanding & summaries | 🔜 Planned |
 | Phase 6 | Intelligent chat assistant | 🔜 Planned |
@@ -83,9 +83,10 @@ SehatSaathi-AI/
 
 ### Prerequisites
 
-- Python 3.12 or higher
+- Python 3.9 or higher (3.12 recommended)
 - pip
 - Git
+- **For OCR (scanned documents):** PaddleOCR requires `paddlepaddle` + `paddleocr`
 
 ### 1. Clone the repository
 
@@ -97,7 +98,7 @@ cd SehatSaathi-AI
 ### 2. Create a virtual environment
 
 ```bash
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate        # macOS / Linux
 .venv\Scripts\activate           # Windows
 ```
@@ -108,14 +109,24 @@ source .venv/bin/activate        # macOS / Linux
 pip install -r requirements.txt
 ```
 
-### 4. Set up environment variables
+### 4. Install PaddleOCR (required for scanned documents and images)
+
+```bash
+# CPU version (works on macOS, Linux, Windows)
+pip install paddlepaddle paddleocr
+
+# PaddleOCR downloads model weights (~200 MB) on first use.
+# Ensure you have internet access when running OCR for the first time.
+```
+
+### 5. Set up environment variables
 
 ```bash
 cp .env.example .env
-# Edit .env and update any values as needed
+# Edit .env if you need non-default paths or settings
 ```
 
-### 5. Start the backend
+### 6. Start the backend
 
 ```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
@@ -126,9 +137,9 @@ The API will be available at:
 - **ReDoc:** http://localhost:8000/redoc
 - **Health check:** http://localhost:8000/health
 
-### 6. Start the frontend
+### 7. Start the frontend
 
-Open a new terminal tab (keep the backend running):
+Open a new terminal (keep the backend running):
 
 ```bash
 streamlit run frontend/app.py
@@ -138,22 +149,33 @@ The Streamlit app will open at http://localhost:8501
 
 ---
 
-## API Overview (Phase 1 — Placeholders)
+## API Overview (Phase 2)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | Application info |
-| GET | `/health` | Health check |
-| POST | `/api/v1/auth/register` | Register user *(Phase 8)* |
-| POST | `/api/v1/auth/login` | Login *(Phase 8)* |
-| POST | `/api/v1/upload/` | Upload medical report *(Phase 2)* |
-| GET | `/api/v1/upload/status/{id}` | Processing status *(Phase 2)* |
-| GET | `/api/v1/report/{id}` | Get report data *(Phase 3)* |
-| GET | `/api/v1/report/{id}/summary` | Report summary *(Phase 5)* |
-| GET | `/api/v1/analysis/{id}/entities` | Medical entities *(Phase 3)* |
-| GET | `/api/v1/analysis/{id}/lab-values` | Lab results *(Phase 3)* |
-| POST | `/api/v1/chat/session` | Create chat session *(Phase 6)* |
-| POST | `/api/v1/chat/session/{id}/message` | Chat Q&A *(Phase 6)* |
+| Method | Endpoint | Description | Status |
+|--------|----------|-------------|--------|
+| GET | `/` | Application info | ✅ |
+| GET | `/health` | Health check | ✅ |
+| POST | `/api/v1/upload/` | Upload & store a medical report | ✅ Phase 2 |
+| GET | `/api/v1/upload/status/{id}` | Processing status | ✅ Phase 2 |
+| **POST** | **`/api/v1/report/extract`** | **Extract text from a report** | **✅ Phase 2** |
+| GET | `/api/v1/report/{id}` | Get structured report data | 🔜 Phase 3 |
+| GET | `/api/v1/report/{id}/summary` | Report summary | 🔜 Phase 5 |
+| GET | `/api/v1/analysis/{id}/entities` | Medical entities | 🔜 Phase 3 |
+| GET | `/api/v1/analysis/{id}/lab-values` | Lab results | 🔜 Phase 3 |
+| POST | `/api/v1/chat/session` | Create chat session | 🔜 Phase 6 |
+| POST | `/api/v1/chat/session/{id}/message` | Chat Q&A | 🔜 Phase 6 |
+| POST | `/api/v1/auth/register` | Register user | 🔜 Phase 8 |
+| POST | `/api/v1/auth/login` | Login | 🔜 Phase 8 |
+
+### Testing with Swagger UI
+
+1. Start the backend: `uvicorn main:app --reload`
+2. Open http://localhost:8000/docs
+3. Try `POST /api/v1/upload/` — click **Try it out**, upload any PDF or image
+4. Try `POST /api/v1/report/extract` — upload a PDF to get extracted text back
+
+**Supported file formats:** PDF, PNG, JPG, JPEG, TIFF  
+**Maximum file size:** 20 MB
 
 ---
 
