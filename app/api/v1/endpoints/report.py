@@ -1,23 +1,25 @@
 """
-Report endpoint — Phase 2: extract endpoint implemented.
+Report endpoint — Phase 3: /parse endpoint added.
 
-GET routes remain as placeholders until Phase 3 (database + NER).
-POST /extract is the main Phase 2 deliverable.
+Phase 2: POST /extract   — text extraction from file
+Phase 3: POST /parse     — full structured JSON from file or plain text
+GET routes remain as placeholders until Phase 4+ (database integration).
 """
 
 from __future__ import annotations
 
 import logging
+from typing import Optional
 
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 from starlette.concurrency import run_in_threadpool
 
 from app.config.settings import get_settings
 from app.core.exceptions import OCRFailedException, PDFExtractionException
 from app.schemas.document import ExtractionResult
+from app.schemas.report import ParsedReport
 from app.services.document_service import document_service
 from app.utils.file_manager import (
-    cleanup_temp_files,
     delete_file,
     generate_unique_filename,
     save_file,
@@ -141,3 +143,89 @@ async def extract_text(
         original_filename, result.characters, result.words, result.extraction_method,
     )
     return result
+
+
+# ------------------------------------------------------------------ #
+# Phase 3 — Structured Parsing endpoint
+# ------------------------------------------------------------------ #
+
+@router.post(
+    "/parse",
+    response_model=ParsedReport,
+    summary="Parse a medical report into structured JSON",
+    description=(
+        "Upload a medical report (PDF or image) **or** submit extracted text. "
+        "The document is processed through the Phase 2 extraction pipeline if a "
+        "file is provided, then all Phase 3 extractors run to return a fully "
+        "structured JSON report with patient info, lab tests, diagnosis, and "
+        "medicines."
+    ),
+)
+async def parse_report(
+    file: Optional[UploadFile] = File(default=None, description="PDF or image file"),
+    text: Optional[str] = Form(default=None, description="Pre-extracted text (from /extract)"),
+) -> ParsedReport:
+    """
+    Return a fully structured medical report as JSON.
+
+    Accepts **either** a file upload or plain text (not both required).
+
+    Pipeline:
+    1. If ``file`` provided: validate → save to temp → extract text (Phase 2).
+    2. If ``text`` provided: use directly.
+    3. Run all Phase 3 extractors via ``build_report()``.
+    4. Delete temp file (if created).
+    5. Return :class:`~app.schemas.report.ParsedReport`.
+    """
+    from ai.ner.json_builder import build_report  # noqa: PLC0415
+
+    if file is None and not text:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Provide either a 'file' or 'text' parameter.",
+        )
+
+    cleaned_text: str = ""
+    temp_path = None
+
+    # --- Source 1: file ---
+    if file is not None:
+        original_filename = file.filename or "unknown"
+        logger.info("Parse request (file): '%s'", original_filename)
+
+        content = await validate_upload_file(file)
+        temp_filename = generate_unique_filename(original_filename)
+        temp_path = save_file(content, settings.TEMP_DIR, temp_filename)
+
+        try:
+            extraction: ExtractionResult = await run_in_threadpool(
+                document_service.process, temp_path, original_filename
+            )
+            cleaned_text = extraction.text
+        except RuntimeError as exc:
+            raise PDFExtractionException(original_filename, str(exc)) from exc
+        except Exception as exc:
+            raise OCRFailedException(original_filename, str(exc)) from exc
+        finally:
+            if temp_path:
+                delete_file(temp_path)
+
+    # --- Source 2: raw text ---
+    else:
+        cleaned_text = text  # type: ignore[assignment]
+        logger.info("Parse request (text): %d chars", len(cleaned_text))
+
+    if not cleaned_text.strip():
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Could not extract any text from the provided input.",
+        )
+
+    # --- Run Phase 3 extraction pipeline ---
+    report: ParsedReport = await run_in_threadpool(build_report, cleaned_text)
+
+    logger.info(
+        "Parse complete: tests=%d diagnoses=%d medicines=%d",
+        len(report.tests), len(report.diagnosis), len(report.medicines),
+    )
+    return report

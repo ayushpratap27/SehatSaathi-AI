@@ -51,7 +51,8 @@ def _extract_name(text: str) -> Optional[str]:
     for pat in _NAME_PATTERNS:
         m = pat.search(text)
         if m:
-            name = m.group(1).strip()
+            # Take only the first line of the match — prevents capturing across newlines
+            name = m.group(1).strip().split("\n")[0].strip()
             # Exclude obviously wrong matches (section headers, long phrases)
             if 2 <= len(name.split()) <= 5 and not any(
                 kw in name.lower() for kw in ("hospital", "lab", "report", "department")

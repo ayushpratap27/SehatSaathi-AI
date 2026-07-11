@@ -57,7 +57,8 @@ _REF_LABEL = re.compile(
 )
 
 # Status flags appended in parentheses: "(H)", "(L)", "(↑)", "(A)"
-_STATUS_SUFFIX = re.compile(r"\s*[\(\[]?\s*([HLACNHhLlAa↑↓\*]+)\s*[\)\]]?\s*$")
+# Requires at least one whitespace before the flag so unit suffixes like 'L' in 'g/dL' are preserved.
+_STATUS_SUFFIX = re.compile(r"\s+[\(\[]?\s*([HLACNHhLlAa↑↓\*]{1,3})\s*[\)\]]?\s*$")
 
 # Unit-only line (e.g., "g/dL" or "/uL")
 _UNIT_ONLY = re.compile(r"^[a-zA-Z/%×μµ][a-zA-Z0-9/%×μµ·\-\.^]{0,20}$")
