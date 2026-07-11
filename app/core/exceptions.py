@@ -57,6 +57,36 @@ class FileTooLargeException(SehatSaathiException):
         )
 
 
+class InvalidFileException(SehatSaathiException):
+    """Raised when an uploaded file is empty, corrupted, or mislabelled."""
+
+    def __init__(self, reason: str) -> None:
+        super().__init__(
+            message=f"Invalid file: {reason}",
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+class PDFExtractionException(SehatSaathiException):
+    """Raised when both PDF parsers (PyMuPDF and pdfplumber) fail."""
+
+    def __init__(self, filename: str, reason: str) -> None:
+        super().__init__(
+            message=f"Could not extract text from '{filename}': {reason}",
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        )
+
+
+class OCRFailedException(SehatSaathiException):
+    """Raised when the OCR engine fails to process a document."""
+
+    def __init__(self, filename: str, reason: str) -> None:
+        super().__init__(
+            message=f"OCR failed for '{filename}': {reason}",
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        )
+
+
 # --------------------------------------------------------------------------- #
 # Error response helper
 # --------------------------------------------------------------------------- #
