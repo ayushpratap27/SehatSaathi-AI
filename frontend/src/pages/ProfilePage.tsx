@@ -1,7 +1,7 @@
 import { useAuth } from '../context/AuthContext'
 import Card from '../components/ui/Card'
 import { format } from 'date-fns'
-import { Shield, User } from 'lucide-react'
+import { Shield } from 'lucide-react'
 
 export default function ProfilePage() {
   const { user } = useAuth()

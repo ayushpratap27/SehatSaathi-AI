@@ -6,7 +6,7 @@ import { Copy, Send } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { chatService } from '../services/analysisService'
 import LoadingSpinner from '../components/ui/LoadingSpinner'
-import type { ChatMessage, CitationSource } from '../types'
+import type { ChatMessage } from '../types'
 
 function Message({ msg }: { msg: ChatMessage }) {
   const isUser = msg.role === 'user'

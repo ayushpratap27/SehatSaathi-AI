@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { AlertTriangle, FileText, MessageCircle, Trash2 } from 'lucide-react'
+import { AlertTriangle, FileText, MessageCircle } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { reportService } from '../services/reportService'
 import Card from '../components/ui/Card'

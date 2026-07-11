@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import {
-  Activity, FileText, Home, LogOut, MessageCircle, Settings, Upload, User,
+  Activity, FileText, Home, LogOut, Settings, Upload, User,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuth } from '../../context/AuthContext'
