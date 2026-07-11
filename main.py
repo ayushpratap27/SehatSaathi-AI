@@ -46,6 +46,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         from app.database.init_db import init_db  # noqa: PLC0415
         await init_db()
 
+    # Enable WAL mode for SQLite (prevents "database is locked" on concurrent writes)
+    from app.database.session import configure_sqlite  # noqa: PLC0415
+    await configure_sqlite()
+
     # Initialise Redis (optional — degrades gracefully if unavailable)
     from app.core.redis import get_redis  # noqa: PLC0415
     get_redis()

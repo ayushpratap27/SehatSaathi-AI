@@ -73,30 +73,43 @@ async def run_report_pipeline(report_id: str, file_path: str, original_filename:
             )
 
             # ── 5. Persist analysis ─────────────────────────────────────── #
-            existing = await report_analysis_repository.get_by_report(db, report_id)
-            if existing:
-                await report_analysis_repository.update(
-                    db, existing.id,
-                    extracted_text=extraction.text,
-                    structured_json=parsed.model_dump_json(),
-                    analysis_json=analysis.model_dump_json(),
-                    risk_level=analysis.risk_level,
-                    total_tests=analysis.analysis.total_tests,
-                    abnormal_count=analysis.analysis.abnormal,
-                    critical_count=analysis.analysis.critical,
-                )
-            else:
-                await report_analysis_repository.create(
-                    db,
-                    report_id=report_id,
-                    extracted_text=extraction.text,
-                    structured_json=parsed.model_dump_json(),
-                    analysis_json=analysis.model_dump_json(),
-                    risk_level=analysis.risk_level,
-                    total_tests=analysis.analysis.total_tests,
-                    abnormal_count=analysis.analysis.abnormal,
-                    critical_count=analysis.analysis.critical,
-                )
+            # Retry once on DB lock (can happen under concurrent SQLite writes)
+            for attempt in range(3):
+                try:
+                    existing = await report_analysis_repository.get_by_report(db, report_id)
+                    if existing:
+                        await report_analysis_repository.update(
+                            db, existing.id,
+                            extracted_text=extraction.text,
+                            structured_json=parsed.model_dump_json(),
+                            analysis_json=analysis.model_dump_json(),
+                            risk_level=analysis.risk_level,
+                            total_tests=analysis.analysis.total_tests,
+                            abnormal_count=analysis.analysis.abnormal,
+                            critical_count=analysis.analysis.critical,
+                        )
+                    else:
+                        await report_analysis_repository.create(
+                            db,
+                            report_id=report_id,
+                            extracted_text=extraction.text,
+                            structured_json=parsed.model_dump_json(),
+                            analysis_json=analysis.model_dump_json(),
+                            risk_level=analysis.risk_level,
+                            total_tests=analysis.analysis.total_tests,
+                            abnormal_count=analysis.analysis.abnormal,
+                            critical_count=analysis.analysis.critical,
+                        )
+                    await db.commit()
+                    break
+                except Exception as db_exc:
+                    await db.rollback()
+                    if attempt < 2:
+                        import asyncio  # noqa: PLC0415
+                        logger.warning("Pipeline [%s]: DB write attempt %d failed (%s), retrying…", report_id[:8], attempt + 1, db_exc)
+                        await asyncio.sleep(1 + attempt)
+                    else:
+                        raise
 
             # ── 6. Index for RAG ─────────────────────────────────────────── #
             try:

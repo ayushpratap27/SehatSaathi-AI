@@ -59,8 +59,19 @@ class RefreshTokenRepository(BaseRepository[RefreshToken]):
         return len(tokens)
 
     async def is_valid(self, db: AsyncSession, jti: str) -> bool:
+        from datetime import datetime  # noqa: PLC0415
         token = await self.get_by_jti(db, jti)
-        return token is not None and not token.is_revoked and token.expires_at > datetime.now(timezone.utc)
+        if token is None or token.is_revoked:
+            return False
+        # expires_at may be stored as naive datetime in SQLite;
+        # compare against naive UTC to avoid offset-aware mismatch
+        now = datetime.utcnow()
+        exp = token.expires_at
+        # Strip tzinfo if present so comparison is always naive vs naive
+        if hasattr(exp, "tzinfo") and exp.tzinfo is not None:
+            import calendar  # noqa: PLC0415
+            exp = datetime.utcfromtimestamp(calendar.timegm(exp.timetuple()))
+        return exp > now
 
 
 user_repository         = UserRepository()
