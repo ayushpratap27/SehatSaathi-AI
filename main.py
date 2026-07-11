@@ -46,10 +46,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         from app.database.init_db import init_db  # noqa: PLC0415
         await init_db()
 
+    # Initialise Redis (optional — degrades gracefully if unavailable)
+    from app.core.redis import get_redis  # noqa: PLC0415
+    get_redis()
+
     yield
 
     # --- shutdown ---
-    logger.info("SehatSaathi-AI shutting down.")
+    from app.core.redis import close_redis  # noqa: PLC0415
+    close_redis()
 
 
 # ---- Application factory ------------------------------------------------- #
@@ -82,6 +87,20 @@ def create_application() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    # Security headers middleware
+    from starlette.middleware.base import BaseHTTPMiddleware  # noqa: PLC0415
+    from starlette.requests import Request as StarletteRequest  # noqa: PLC0415
+
+    @application.middleware("http")
+    async def add_security_headers(request: StarletteRequest, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"]    = "nosniff"
+        response.headers["X-Frame-Options"]           = "DENY"
+        response.headers["X-XSS-Protection"]          = "1; mode=block"
+        response.headers["Referrer-Policy"]           = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"]        = "camera=(), microphone=(), geolocation=()"
+        return response
 
     # ---- Global exception handlers --------------------------------------- #
     register_exception_handlers(application)

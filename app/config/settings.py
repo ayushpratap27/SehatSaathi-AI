@@ -96,6 +96,12 @@ class Settings(BaseSettings):
     GEMINI_MAX_RETRIES: int = 2          # retries on transient errors
 
     # ------------------------------------------------------------------ #
+    # Redis  (Phase 8)
+    # ------------------------------------------------------------------ #
+    REDIS_URL: str = "redis://localhost:6379/0"
+    CACHE_TTL_SECONDS: int = 300         # default cache TTL (5 min)
+
+    # ------------------------------------------------------------------ #
     # Gemini Embeddings + RAG  (Phase 6)
     # ------------------------------------------------------------------ #
     GEMINI_EMBEDDING_MODEL: str = "models/text-embedding-004"
