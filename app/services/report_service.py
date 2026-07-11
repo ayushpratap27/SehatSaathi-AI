@@ -29,21 +29,15 @@ class ReportService:
         file:       UploadFile,
         content:    bytes,
     ) -> Report:
-        """
-        Save an uploaded file to disk and create a DB record.
-
-        Args:
-            db:      Active database session.
-            user_id: ID of the authenticated user.
-            file:    FastAPI UploadFile object.
-            content: File bytes (already read + validated).
-
-        Returns:
-            Created :class:`~app.models.report.Report` instance.
-        """
+        """Save an uploaded file to disk and create a DB record."""
+        import os  # noqa: PLC0415
         original_filename = file.filename or "unknown"
         saved_filename    = generate_unique_filename(original_filename)
-        file_path         = save_file(content, settings.UPLOAD_DIR, saved_filename)
+
+        # Always use an absolute path so the record works regardless of the
+        # server's working directory at the time it was started.
+        upload_dir = os.path.abspath(settings.UPLOAD_DIR)
+        file_path  = save_file(content, upload_dir, saved_filename)
 
         report = await report_repository.create(
             db,
