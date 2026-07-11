@@ -12,16 +12,18 @@ function StatCard({ label, value, icon: Icon, accent }: {
   label: string; value: number; icon: React.ElementType; accent: string
 }) {
   return (
-    <Card className="flex items-center gap-4 p-5">
-      <div
-        className="w-12 h-12 rounded-[10px] flex items-center justify-center flex-shrink-0"
-        style={{ backgroundColor: accent + '20', color: accent }}
-      >
-        <Icon className="w-6 h-6" />
-      </div>
-      <div>
-        <p className="text-2xl font-semibold text-[#001e2b]">{value}</p>
-        <p className="text-sm text-[#5c6c7a]">{label}</p>
+    <Card noPadding>
+      <div className="flex items-center gap-4 p-5">
+        <div
+          className="w-12 h-12 rounded-[10px] flex items-center justify-center flex-shrink-0"
+          style={{ backgroundColor: accent + '20', color: accent }}
+        >
+          <Icon className="w-6 h-6" />
+        </div>
+        <div>
+          <p className="text-2xl font-semibold text-[#001e2b]">{value}</p>
+          <p className="text-sm text-[#5c6c7a]">{label}</p>
+        </div>
       </div>
     </Card>
   )

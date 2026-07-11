@@ -158,6 +158,15 @@
 /* Mobile-first: base = xs (<375px) → sm → md → lg → xl → 2xl        */
 /* ================================================================== */
 
+/* ── Grid layout utilities (base rules — overridden by breakpoints) ── */
+.stats-grid,
+.report-grid,
+.analysis-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
 /* ── Sidebar ────────────────────────────────────────────────────── */
 .sidebar {
   position: fixed;

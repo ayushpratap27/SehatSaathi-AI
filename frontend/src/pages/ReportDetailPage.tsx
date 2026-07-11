@@ -53,9 +53,11 @@ export default function ReportDetailPage() {
           { label: 'Type',      value: report.mime_type },
           { label: 'Patient',   value: report.patient_name ?? '—' },
         ].map(({ label, value }) => (
-          <Card key={label} className="p-4">
-            <p className="text-[11px] text-[#a8b3bc] uppercase tracking-wider mb-1">{label}</p>
-            <div className="text-sm font-medium text-[#001e2b]">{value}</div>
+          <Card key={label} noPadding>
+            <div className="p-4">
+              <p className="text-[11px] text-[#a8b3bc] uppercase tracking-wider mb-1.5">{label}</p>
+              <div className="text-sm font-semibold text-[#001e2b]">{value}</div>
+            </div>
           </Card>
         ))}
       </div>
@@ -63,7 +65,7 @@ export default function ReportDetailPage() {
       {/* ── Analysis ─────────────────────────── */}
       {analysisLoading ? (
         <Card title="Clinical Analysis">
-          <div className="p-6 flex items-center gap-3">
+          <div className="flex items-center gap-3">
             <LoadingSpinner />
             <span className="text-sm text-[#5c6c7a]">Analyzing…</span>
           </div>
@@ -72,7 +74,7 @@ export default function ReportDetailPage() {
         <>
           {/* Overview counts */}
           <Card title="Analysis Overview">
-            <div className="analysis-grid p-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {[
                 { label: 'Total Tests', value: analysis.total_tests,   color: '#001e2b' },
                 { label: 'Normal',      value: analysis.abnormal_count
@@ -92,7 +94,7 @@ export default function ReportDetailPage() {
           {/* Extracted data */}
           {analysis.structured_json && (
             <Card title="Extracted Report Data">
-              <div className="p-6 space-y-3">
+              <div className="space-y-3">
                 {(() => {
                   try {
                     const d = JSON.parse(analysis.structured_json)
@@ -138,7 +140,7 @@ export default function ReportDetailPage() {
         </>
       ) : (
         <Card>
-          <div className="p-6 text-center py-10">
+          <div className="text-center py-6">
             <div className="w-12 h-12 rounded-[10px] bg-[#f4f7f6] flex items-center justify-center mx-auto mb-3">
               <FileText className="w-6 h-6 text-[#a8b3bc]" />
             </div>

@@ -1,8 +1,9 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Activity, Loader2 } from 'lucide-react'
+import { Activity, Eye, EyeOff, Loader2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 const schema = z.object({
@@ -19,9 +20,12 @@ type Form = z.infer<typeof schema>
 
 export default function RegisterPage() {
   const { register: authRegister } = useAuth()
+  const [showPw, setShowPw]   = useState<Record<string, boolean>>({})
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<Form>({
     resolver: zodResolver(schema),
   })
+
+  const togglePw = (name: string) => setShowPw((prev) => ({ ...prev, [name]: !prev[name] }))
 
   const onSubmit = async ({ confirm: _c, ...data }: Form) => {
     try { await authRegister(data) } catch { /* handled by interceptor */ }
@@ -62,15 +66,39 @@ export default function RegisterPage() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               {([
-                { name: 'email',     label: 'Email',                    type: 'email',    placeholder: 'you@example.com' },
-                { name: 'username',  label: 'Username',                  type: 'text',     placeholder: 'john_doe' },
-                { name: 'full_name', label: 'Full name (optional)',       type: 'text',     placeholder: 'John Doe' },
-                { name: 'password',  label: 'Password',                  type: 'password', placeholder: '••••••••' },
-                { name: 'confirm',   label: 'Confirm password',          type: 'password', placeholder: '••••••••' },
+                { name: 'email',     label: 'Email',                   type: 'email', placeholder: 'you@example.com' },
+                { name: 'username',  label: 'Username',                 type: 'text',  placeholder: 'john_doe' },
+                { name: 'full_name', label: 'Full name (optional)',      type: 'text',  placeholder: 'John Doe' },
               ] as const).map(({ name, label, type, placeholder }) => (
                 <div key={name}>
                   <label className="block text-sm font-medium text-[#001e2b] mb-1.5">{label}</label>
                   <input {...register(name)} type={type} placeholder={placeholder} className="input-field" />
+                  {errors[name] && <p className="mt-1.5 text-xs text-red-600">{errors[name]?.message}</p>}
+                </div>
+              ))}
+
+              {/* Password fields with show/hide toggle */}
+              {(['password', 'confirm'] as const).map((name) => (
+                <div key={name}>
+                  <label className="block text-sm font-medium text-[#001e2b] mb-1.5">
+                    {name === 'password' ? 'Password' : 'Confirm password'}
+                  </label>
+                  <div className="relative">
+                    <input
+                      {...register(name)}
+                      type={showPw[name] ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      className="input-field pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => togglePw(name)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a8b3bc] hover:text-[#5c6c7a] transition-colors"
+                      aria-label={showPw[name] ? 'Hide password' : 'Show password'}
+                    >
+                      {showPw[name] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
                   {errors[name] && <p className="mt-1.5 text-xs text-red-600">{errors[name]?.message}</p>}
                 </div>
               ))}

@@ -1,8 +1,9 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Activity, Loader2 } from 'lucide-react'
+import { Activity, Eye, EyeOff, Loader2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 const schema = z.object({
@@ -13,6 +14,7 @@ type Form = z.infer<typeof schema>
 
 export default function LoginPage() {
   const { login } = useAuth()
+  const [showPw, setShowPw] = useState(false)
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<Form>({
     resolver: zodResolver(schema),
   })
@@ -72,13 +74,23 @@ export default function LoginPage() {
 
               <div>
                 <label className="block text-sm font-medium text-[#001e2b] mb-1.5">Password</label>
-                <input
-                  {...register('password')}
-                  type="password"
-                  autoComplete="current-password"
-                  placeholder="••••••••"
-                  className="input-field"
-                />
+                <div className="relative">
+                  <input
+                    {...register('password')}
+                    type={showPw ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    placeholder="••••••••"
+                    className="input-field pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a8b3bc] hover:text-[#5c6c7a] transition-colors"
+                    aria-label={showPw ? 'Hide password' : 'Show password'}
+                  >
+                    {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
                 {errors.password && <p className="mt-1.5 text-xs text-red-600">{errors.password.message}</p>}
               </div>
 
