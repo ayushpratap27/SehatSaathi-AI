@@ -1,0 +1,90 @@
+# =============================================================================
+# Lipid Panel Reference Ranges
+# =============================================================================
+
+total_cholesterol:
+  display_name: "Total Cholesterol"
+  aliases: ["total cholesterol", cholesterol, tc, "serum cholesterol",
+            "cholesterol total"]
+  unit: "mg/dL"
+  category: "Lipid Panel"
+  description: >
+    Total cholesterol includes all cholesterol fractions. Elevated levels
+    are associated with increased cardiovascular risk.
+  ranges:
+    desirable:
+      min: 0.0
+      max: 200.0
+    default:
+      min: 0.0
+      max: 200.0
+  critical:
+    high: 500.0
+
+ldl_cholesterol:
+  display_name: "LDL Cholesterol"
+  aliases: ["ldl cholesterol", ldl, "ldl-c", "low density lipoprotein",
+            "ldl-cholesterol", "low-density lipoprotein cholesterol"]
+  unit: "mg/dL"
+  category: "Lipid Panel"
+  description: >
+    LDL (low-density lipoprotein) is often called 'bad cholesterol'.
+    Lower values are generally associated with reduced cardiovascular risk.
+  ranges:
+    default:
+      min: 0.0
+      max: 130.0
+
+hdl_cholesterol:
+  display_name: "HDL Cholesterol"
+  aliases: ["hdl cholesterol", hdl, "hdl-c", "high density lipoprotein",
+            "hdl-cholesterol", "high-density lipoprotein cholesterol"]
+  unit: "mg/dL"
+  category: "Lipid Panel"
+  description: >
+    HDL (high-density lipoprotein) is often called 'good cholesterol'.
+    Higher values are generally associated with reduced cardiovascular risk.
+  ranges:
+    male_adult:
+      gender: male
+      age_min: 18
+      min: 40.0
+      max: 60.0
+    female_adult:
+      gender: female
+      age_min: 18
+      min: 50.0
+      max: 80.0
+    default:
+      min: 40.0
+      max: 80.0
+
+triglycerides:
+  display_name: "Triglycerides"
+  aliases: [triglycerides, triglyceride, tg, "serum triglycerides",
+            "triacylglycerol"]
+  unit: "mg/dL"
+  category: "Lipid Panel"
+  description: >
+    Triglycerides are fats in the blood. Elevated levels are associated
+    with increased risk of cardiovascular disease and pancreatitis.
+  ranges:
+    default:
+      min: 0.0
+      max: 150.0
+  critical:
+    high: 1000.0
+
+vldl_cholesterol:
+  display_name: "VLDL Cholesterol"
+  aliases: ["vldl cholesterol", vldl, "vldl-c",
+            "very low density lipoprotein"]
+  unit: "mg/dL"
+  category: "Lipid Panel"
+  description: >
+    VLDL carries triglycerides in the blood. It is calculated from
+    triglyceride levels (VLDL = Triglycerides / 5).
+  ranges:
+    default:
+      min: 2.0
+      max: 30.0

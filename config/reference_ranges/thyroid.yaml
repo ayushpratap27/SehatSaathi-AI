@@ -1,0 +1,76 @@
+# =============================================================================
+# Thyroid Function Tests Reference Ranges
+# =============================================================================
+
+tsh:
+  display_name: "TSH"
+  aliases: [tsh, "thyroid stimulating hormone", "thyrotropin",
+            "thyroid-stimulating hormone", "thyroid stimulating hormone (tsh)"]
+  unit: "mIU/L"
+  category: "Thyroid"
+  description: >
+    TSH (Thyroid Stimulating Hormone) is produced by the pituitary gland
+    and regulates thyroid function. It is the most sensitive first-line
+    test for thyroid disorders.
+  ranges:
+    default:
+      min: 0.4
+      max: 4.0
+  critical:
+    low: 0.01
+    high: 100.0
+
+t3:
+  display_name: "T3"
+  aliases: [t3, "triiodothyronine", "total t3", "serum t3",
+            "t3 (total)", "t3 total"]
+  unit: "ng/dL"
+  category: "Thyroid"
+  description: >
+    T3 (Triiodothyronine) is the active thyroid hormone. Total T3
+    measures both protein-bound and free T3.
+  ranges:
+    default:
+      min: 80.0
+      max: 200.0
+
+t4:
+  display_name: "T4"
+  aliases: [t4, thyroxine, "total t4", "serum t4",
+            "t4 (total)", "t4 total"]
+  unit: "μg/dL"
+  category: "Thyroid"
+  description: >
+    T4 (Thyroxine) is the main thyroid hormone secreted by the thyroid
+    gland. Total T4 includes both bound and free forms.
+  ranges:
+    default:
+      min: 5.0
+      max: 12.0
+
+free_t3:
+  display_name: "Free T3"
+  aliases: ["free t3", ft3, "ft3", "free triiodothyronine",
+            "freetriiodothyronine"]
+  unit: "pg/mL"
+  category: "Thyroid"
+  description: >
+    Free T3 is the biologically active form of T3 not bound to proteins.
+    More accurate than total T3 for thyroid function assessment.
+  ranges:
+    default:
+      min: 2.3
+      max: 4.2
+
+free_t4:
+  display_name: "Free T4"
+  aliases: ["free t4", ft4, "ft4", "free thyroxine", "freethyroxine"]
+  unit: "ng/dL"
+  category: "Thyroid"
+  description: >
+    Free T4 is the biologically active form of T4 not bound to proteins.
+    Used together with TSH to assess thyroid function.
+  ranges:
+    default:
+      min: 0.89
+      max: 1.76

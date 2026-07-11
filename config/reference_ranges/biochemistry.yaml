@@ -1,0 +1,336 @@
+# =============================================================================
+# Biochemistry / Clinical Chemistry Reference Ranges
+# =============================================================================
+
+glucose:
+  display_name: "Glucose"
+  aliases: [glucose, "blood sugar", "blood glucose", "random blood glucose",
+            "rbs", "random blood sugar"]
+  unit: "mg/dL"
+  category: "Biochemistry"
+  description: >
+    Blood glucose measures the concentration of sugar in the blood.
+    A single random value should be interpreted alongside symptoms
+    and other clinical information.
+  ranges:
+    default:
+      min: 70.0
+      max: 140.0
+  critical:
+    low: 50.0
+    high: 400.0
+
+fasting_blood_sugar:
+  display_name: "Fasting Blood Sugar"
+  aliases: ["fasting blood sugar", fbs, "fasting blood glucose",
+            "fasting glucose", "fasting blood sugar (fbs)"]
+  unit: "mg/dL"
+  category: "Biochemistry"
+  description: >
+    Fasting blood glucose is measured after at least 8 hours of
+    fasting. Used to screen for and monitor diabetes.
+  ranges:
+    default:
+      min: 70.0
+      max: 99.0
+  critical:
+    low: 50.0
+    high: 400.0
+
+hba1c:
+  display_name: "HbA1c"
+  aliases: [hba1c, a1c, "glycated hemoglobin", "glycosylated hemoglobin",
+            "hemoglobin a1c", "hb a1c"]
+  unit: "%"
+  category: "Biochemistry"
+  description: >
+    HbA1c reflects average blood glucose levels over the past 2–3
+    months. Used to diagnose and monitor diabetes management.
+  ranges:
+    normal:
+      min: 4.0
+      max: 5.6
+    prediabetes_range:
+      min: 5.7
+      max: 6.4
+    default:
+      min: 4.0
+      max: 5.6
+  critical:
+    high: 14.0
+
+creatinine:
+  display_name: "Creatinine"
+  aliases: [creatinine, "serum creatinine", "s. creatinine", "s creatinine"]
+  unit: "mg/dL"
+  category: "Biochemistry"
+  description: >
+    Creatinine is a waste product of muscle metabolism filtered by the
+    kidneys. Elevated levels may indicate impaired kidney function.
+  ranges:
+    male_adult:
+      gender: male
+      age_min: 18
+      min: 0.74
+      max: 1.35
+    female_adult:
+      gender: female
+      age_min: 18
+      min: 0.59
+      max: 1.04
+    default:
+      min: 0.59
+      max: 1.35
+  critical:
+    high: 10.0
+
+blood_urea:
+  display_name: "Blood Urea"
+  aliases: ["blood urea", urea, "serum urea", "blood urea nitrogen",
+            bun, "urea nitrogen"]
+  unit: "mg/dL"
+  category: "Biochemistry"
+  description: >
+    Blood urea measures the amount of urea nitrogen in the blood.
+    Urea is the end product of protein metabolism excreted by the
+    kidneys.
+  ranges:
+    default:
+      min: 15.0
+      max: 45.0
+  critical:
+    high: 150.0
+
+uric_acid:
+  display_name: "Uric Acid"
+  aliases: ["uric acid", "serum uric acid", "s. uric acid"]
+  unit: "mg/dL"
+  category: "Biochemistry"
+  description: >
+    Uric acid is a breakdown product of purines. Elevated levels
+    (hyperuricaemia) may be associated with gout and kidney stones.
+  ranges:
+    male_adult:
+      gender: male
+      age_min: 18
+      min: 3.5
+      max: 7.2
+    female_adult:
+      gender: female
+      age_min: 18
+      min: 2.6
+      max: 6.0
+    default:
+      min: 2.6
+      max: 7.2
+  critical:
+    high: 13.0
+
+sodium:
+  display_name: "Sodium"
+  aliases: [sodium, "serum sodium", "s. sodium", "na", "s.na"]
+  unit: "mEq/L"
+  category: "Biochemistry"
+  description: >
+    Sodium is the major extracellular electrolyte regulating fluid
+    balance. Abnormal levels affect neurological function.
+  ranges:
+    default:
+      min: 135.0
+      max: 145.0
+  critical:
+    low: 120.0
+    high: 160.0
+
+potassium:
+  display_name: "Potassium"
+  aliases: [potassium, "serum potassium", "s. potassium", "k", "s.k"]
+  unit: "mEq/L"
+  category: "Biochemistry"
+  description: >
+    Potassium is the major intracellular electrolyte critical for
+    cardiac and muscle function. Critically abnormal levels can
+    cause life-threatening arrhythmias.
+  ranges:
+    default:
+      min: 3.5
+      max: 5.0
+  critical:
+    low: 2.5
+    high: 6.5
+
+chloride:
+  display_name: "Chloride"
+  aliases: [chloride, "serum chloride", "s. chloride", cl]
+  unit: "mEq/L"
+  category: "Biochemistry"
+  description: >
+    Chloride is the major extracellular anion. Abnormal levels are
+    usually associated with acid-base or fluid balance disorders.
+  ranges:
+    default:
+      min: 98.0
+      max: 107.0
+
+bicarbonate:
+  display_name: "Bicarbonate"
+  aliases: [bicarbonate, hco3, "serum bicarbonate", "total co2"]
+  unit: "mEq/L"
+  category: "Biochemistry"
+  description: >
+    Bicarbonate helps maintain the body's acid-base balance. Abnormal
+    values may indicate metabolic acid-base disturbances.
+  ranges:
+    default:
+      min: 22.0
+      max: 29.0
+
+calcium:
+  display_name: "Calcium"
+  aliases: [calcium, "serum calcium", "s. calcium", "total calcium", "ca"]
+  unit: "mg/dL"
+  category: "Biochemistry"
+  description: >
+    Calcium is essential for bone health, muscle function, and nerve
+    signalling. Abnormal serum calcium has varied clinical implications.
+  ranges:
+    default:
+      min: 8.5
+      max: 10.5
+  critical:
+    low: 6.0
+    high: 13.5
+
+phosphorus:
+  display_name: "Phosphorus"
+  aliases: [phosphorus, phosphate, "serum phosphorus", "inorganic phosphorus"]
+  unit: "mg/dL"
+  category: "Biochemistry"
+  description: >
+    Phosphorus is essential for bone mineralisation and energy
+    metabolism. Often evaluated alongside calcium.
+  ranges:
+    default:
+      min: 2.5
+      max: 4.5
+
+alt:
+  display_name: "ALT"
+  aliases: [alt, sgpt, "alanine aminotransferase", "alanine transaminase",
+            "serum glutamic pyruvate transaminase"]
+  unit: "U/L"
+  category: "Liver Function"
+  description: >
+    ALT (Alanine Aminotransferase) is primarily found in the liver.
+    Elevated values may indicate liver cell damage or disease.
+  ranges:
+    default:
+      min: 7.0
+      max: 56.0
+  critical:
+    high: 1000.0
+
+ast:
+  display_name: "AST"
+  aliases: [ast, sgot, "aspartate aminotransferase", "aspartate transaminase",
+            "serum glutamic oxaloacetic transaminase"]
+  unit: "U/L"
+  category: "Liver Function"
+  description: >
+    AST is found in the liver, heart, and muscles. Elevated levels may
+    indicate liver or muscle injury.
+  ranges:
+    default:
+      min: 10.0
+      max: 40.0
+  critical:
+    high: 1000.0
+
+alkaline_phosphatase:
+  display_name: "Alkaline Phosphatase"
+  aliases: [alp, "alkaline phosphatase", "alk. phosphatase", "alk phos"]
+  unit: "U/L"
+  category: "Liver Function"
+  description: >
+    Alkaline Phosphatase is an enzyme found in the liver, bone, kidney,
+    and intestine. Elevated levels may indicate liver or bone disease.
+  ranges:
+    default:
+      min: 44.0
+      max: 147.0
+
+total_bilirubin:
+  display_name: "Total Bilirubin"
+  aliases: ["total bilirubin", "bilirubin total", "t. bilirubin",
+            "serum bilirubin", "s. bilirubin"]
+  unit: "mg/dL"
+  category: "Liver Function"
+  description: >
+    Total bilirubin is a breakdown product of hemoglobin. Elevated
+    levels cause jaundice and may indicate liver or blood disorders.
+  ranges:
+    default:
+      min: 0.3
+      max: 1.2
+  critical:
+    high: 15.0
+
+direct_bilirubin:
+  display_name: "Direct Bilirubin"
+  aliases: ["direct bilirubin", "bilirubin direct", "conjugated bilirubin",
+            "d. bilirubin"]
+  unit: "mg/dL"
+  category: "Liver Function"
+  description: >
+    Direct (conjugated) bilirubin is processed by the liver. Elevated
+    levels may indicate obstructive liver disease.
+  ranges:
+    default:
+      min: 0.0
+      max: 0.3
+
+total_protein:
+  display_name: "Total Protein"
+  aliases: ["total protein", "protein total", "serum protein"]
+  unit: "g/dL"
+  category: "Liver Function"
+  description: >
+    Total protein measures the combined albumin and globulin in
+    the blood. Abnormal values may reflect nutritional status or
+    liver/kidney disease.
+  ranges:
+    default:
+      min: 6.0
+      max: 8.3
+
+albumin:
+  display_name: "Albumin"
+  aliases: [albumin, "serum albumin", "s. albumin"]
+  unit: "g/dL"
+  category: "Liver Function"
+  description: >
+    Albumin is the main protein produced by the liver. Low albumin
+    may reflect chronic liver disease, malnutrition, or kidney disease.
+  ranges:
+    default:
+      min: 3.5
+      max: 5.0
+  critical:
+    low: 1.5
+
+crp:
+  display_name: "CRP"
+  aliases: [crp, "c-reactive protein", "c reactive protein",
+            "c-reactive protein (crp)"]
+  unit: "mg/L"
+  category: "Inflammatory Markers"
+  description: >
+    C-Reactive Protein is produced by the liver in response to
+    inflammation or infection. Elevated levels are a non-specific
+    marker of acute inflammation.
+  ranges:
+    default:
+      min: 0.0
+      max: 5.0
+  critical:
+    high: 200.0

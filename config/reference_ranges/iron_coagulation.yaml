@@ -1,0 +1,114 @@
+# =============================================================================
+# Iron Studies & Coagulation Reference Ranges
+# =============================================================================
+
+serum_iron:
+  display_name: "Serum Iron"
+  aliases: ["serum iron", iron, "iron (serum)", "s. iron", "s iron"]
+  unit: "μg/dL"
+  category: "Iron Studies"
+  description: >
+    Serum iron measures the amount of iron in the blood bound to
+    transferrin. Used in the evaluation of iron deficiency or overload.
+  ranges:
+    male_adult:
+      gender: male
+      age_min: 18
+      min: 65.0
+      max: 176.0
+    female_adult:
+      gender: female
+      age_min: 18
+      min: 50.0
+      max: 170.0
+    default:
+      min: 50.0
+      max: 176.0
+
+tibc:
+  display_name: "TIBC"
+  aliases: [tibc, "total iron binding capacity",
+            "serum total iron binding capacity"]
+  unit: "μg/dL"
+  category: "Iron Studies"
+  description: >
+    TIBC measures the blood's capacity to bind iron. Elevated TIBC with
+    low serum iron is characteristic of iron deficiency.
+  ranges:
+    default:
+      min: 250.0
+      max: 370.0
+
+ferritin:
+  display_name: "Ferritin"
+  aliases: [ferritin, "serum ferritin", "s. ferritin"]
+  unit: "ng/mL"
+  category: "Iron Studies"
+  description: >
+    Ferritin is the main iron-storage protein. Low serum ferritin is
+    highly specific for iron deficiency.
+  ranges:
+    male_adult:
+      gender: male
+      age_min: 18
+      min: 12.0
+      max: 300.0
+    female_adult:
+      gender: female
+      age_min: 18
+      min: 12.0
+      max: 150.0
+    default:
+      min: 12.0
+      max: 300.0
+  critical:
+    low: 5.0
+
+prothrombin_time:
+  display_name: "Prothrombin Time"
+  aliases: ["prothrombin time", pt, "pt (prothrombin time)",
+            "prothrombin time (pt)"]
+  unit: "sec"
+  category: "Coagulation"
+  description: >
+    Prothrombin Time measures the time for blood to clot via the
+    extrinsic pathway. Used to assess clotting factor function.
+  ranges:
+    default:
+      min: 11.0
+      max: 14.0
+  critical:
+    high: 30.0
+
+inr:
+  display_name: "INR"
+  aliases: [inr, "international normalised ratio",
+            "international normalized ratio"]
+  unit: ""
+  category: "Coagulation"
+  description: >
+    INR standardises Prothrombin Time measurements. Values >1.5 in
+    non-anticoagulated patients may indicate clotting factor deficiency.
+  ranges:
+    default:
+      min: 0.8
+      max: 1.2
+  critical:
+    high: 5.0
+
+aptt:
+  display_name: "APTT"
+  aliases: [aptt, ptt, "activated partial thromboplastin time",
+            "partial thromboplastin time", "activated ptt"]
+  unit: "sec"
+  category: "Coagulation"
+  description: >
+    APTT measures the time for blood to clot via the intrinsic pathway.
+    Prolonged values may indicate clotting factor deficiency or
+    anticoagulant therapy.
+  ranges:
+    default:
+      min: 25.0
+      max: 38.0
+  critical:
+    high: 80.0

@@ -1,0 +1,234 @@
+# =============================================================================
+# Haematology Reference Ranges
+# =============================================================================
+# Structure per test:
+#   display_name  : Human-readable name shown in reports
+#   aliases       : All recognised variants (lowercase, for matching)
+#   unit          : Primary unit of measurement
+#   category      : Broad category for grouping
+#   description   : Plain-language description of what the test measures
+#   ranges        : One or more named range blocks; resolver picks the most
+#                   specific match (gender + age) before falling back to
+#                   "default".
+#   critical      : Thresholds for critically abnormal values
+# =============================================================================
+
+hemoglobin:
+  display_name: "Hemoglobin"
+  aliases: [hb, hgb, haemoglobin, hemoglobin, "hgb%"]
+  unit: "g/dL"
+  category: "Haematology"
+  description: >
+    Hemoglobin is the iron-containing protein in red blood cells that
+    carries oxygen from the lungs to the rest of the body.
+  ranges:
+    male_adult:
+      gender: male
+      age_min: 18
+      min: 13.5
+      max: 17.5
+    female_adult:
+      gender: female
+      age_min: 18
+      min: 12.0
+      max: 15.5
+    children:
+      age_min: 1
+      age_max: 17
+      min: 11.0
+      max: 16.0
+    default:
+      min: 12.0
+      max: 17.5
+  critical:
+    low: 7.0
+    high: 20.0
+
+wbc_count:
+  display_name: "WBC Count"
+  aliases: [wbc, "wbc count", "white blood cell count", tlc, leukocytes,
+            "total leukocyte count", "total wbc count"]
+  unit: "/uL"
+  category: "Haematology"
+  description: >
+    White blood cells (leukocytes) are the cells of the immune system.
+    An elevated or reduced count may reflect infection, inflammation,
+    or bone marrow activity.
+  ranges:
+    adults:
+      age_min: 18
+      min: 4000
+      max: 11000
+    children:
+      age_min: 1
+      age_max: 17
+      min: 5000
+      max: 15000
+    default:
+      min: 4000
+      max: 11000
+  critical:
+    low: 2000
+    high: 30000
+
+platelet_count:
+  display_name: "Platelet Count"
+  aliases: [platelets, plt, "platelet count", thrombocytes, "thrombocyte count"]
+  unit: "/uL"
+  category: "Haematology"
+  description: >
+    Platelets are small cell fragments that help blood clot.
+    Low platelets increase bleeding risk; very high platelets may
+    increase clot risk.
+  ranges:
+    default:
+      min: 150000
+      max: 450000
+  critical:
+    low: 20000
+    high: 1000000
+
+rbc_count:
+  display_name: "RBC Count"
+  aliases: ["rbc", "rbc count", "red blood cell count", "red blood cells",
+            "erythrocyte count"]
+  unit: "×10⁶/uL"
+  category: "Haematology"
+  description: >
+    Red blood cell count measures the number of red blood cells per
+    unit of blood.
+  ranges:
+    male_adult:
+      gender: male
+      age_min: 18
+      min: 4.5
+      max: 5.9
+    female_adult:
+      gender: female
+      age_min: 18
+      min: 4.1
+      max: 5.1
+    default:
+      min: 4.0
+      max: 5.9
+  critical:
+    low: 2.0
+    high: 8.0
+
+hematocrit:
+  display_name: "Hematocrit"
+  aliases: [hct, pcv, "packed cell volume", haematocrit, hematocrit]
+  unit: "%"
+  category: "Haematology"
+  description: >
+    Hematocrit is the proportion of blood volume occupied by red blood
+    cells. It correlates closely with hemoglobin.
+  ranges:
+    male_adult:
+      gender: male
+      age_min: 18
+      min: 41.0
+      max: 53.0
+    female_adult:
+      gender: female
+      age_min: 18
+      min: 36.0
+      max: 46.0
+    default:
+      min: 36.0
+      max: 53.0
+  critical:
+    low: 20.0
+    high: 60.0
+
+mcv:
+  display_name: "MCV"
+  aliases: [mcv, "mean corpuscular volume", "mean cell volume"]
+  unit: "fL"
+  category: "Haematology"
+  description: >
+    Mean Corpuscular Volume measures the average size of red blood cells.
+    Abnormal values help classify anaemia type.
+  ranges:
+    default:
+      min: 80.0
+      max: 100.0
+
+mch:
+  display_name: "MCH"
+  aliases: [mch, "mean corpuscular hemoglobin", "mean cell hemoglobin"]
+  unit: "pg"
+  category: "Haematology"
+  description: >
+    Mean Corpuscular Hemoglobin is the average amount of hemoglobin
+    per red blood cell.
+  ranges:
+    default:
+      min: 27.0
+      max: 33.0
+
+mchc:
+  display_name: "MCHC"
+  aliases: [mchc, "mean corpuscular hemoglobin concentration",
+            "mean cell hemoglobin concentration"]
+  unit: "g/dL"
+  category: "Haematology"
+  description: >
+    Mean Corpuscular Hemoglobin Concentration is the average
+    concentration of hemoglobin inside red blood cells.
+  ranges:
+    default:
+      min: 31.5
+      max: 36.0
+
+rdw:
+  display_name: "RDW"
+  aliases: [rdw, "rdw-cv", "red cell distribution width",
+            "red blood cell distribution width"]
+  unit: "%"
+  category: "Haematology"
+  description: >
+    RDW measures the variation in size of red blood cells.
+    Elevated values may indicate nutritional deficiency or mixed
+    anaemia.
+  ranges:
+    default:
+      min: 11.5
+      max: 14.5
+
+mpv:
+  display_name: "MPV"
+  aliases: [mpv, "mean platelet volume"]
+  unit: "fL"
+  category: "Haematology"
+  description: >
+    Mean Platelet Volume measures the average size of platelets.
+  ranges:
+    default:
+      min: 7.5
+      max: 12.5
+
+esr:
+  display_name: "ESR"
+  aliases: [esr, "erythrocyte sedimentation rate",
+            "erythrocyte sedimentation rate (esr)"]
+  unit: "mm/hr"
+  category: "Haematology"
+  description: >
+    ESR measures how quickly red blood cells settle in a tube.
+    Elevated values may indicate inflammation, infection, or other
+    conditions.
+  ranges:
+    male_adult:
+      gender: male
+      age_min: 18
+      min: 0
+      max: 15.0
+    female_adult:
+      gender: female
+      age_min: 18
+      min: 0
+      max: 20.0
+    default:
+      min: 0
+      max: 20.0
