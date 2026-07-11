@@ -4,6 +4,7 @@ AuditLog ORM model — records security-relevant application events.
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import DateTime, String, Text
@@ -25,7 +26,7 @@ class AuditLog(Base):
     resource_id:   Mapped[Optional[str]] = mapped_column(String(36),  nullable=True)
     ip_address:    Mapped[Optional[str]] = mapped_column(String(45),  nullable=True)               # IPv4/IPv6
     details:       Mapped[Optional[str]] = mapped_column(Text,        nullable=True)               # JSON extra info
-    created_at:    Mapped[str]           = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at:    Mapped[datetime]      = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     def __repr__(self) -> str:
         return f"<AuditLog id={self.id!r} action={self.action!r} user={self.user_id!r}>"

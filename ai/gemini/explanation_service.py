@@ -84,7 +84,7 @@ class ExplanationService:
 
         return ExplanationResponse(
             explanations=items,
-            model_used=getattr(self._gemini, "_model_name", "gemini-2.5-flash"),
+            model_used=__import__("app.config.settings", fromlist=["get_settings"]).get_settings().GEMINI_MODEL,
             tokens_used=result.tokens_used,
         )
 

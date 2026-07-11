@@ -100,7 +100,9 @@ class ReferenceEngine:
             return
 
         loaded = 0
-        for yaml_file in sorted(self._config_dir.glob("*.yaml")):
+        for yaml_file in sorted(
+            list(self._config_dir.glob("*.yaml")) + list(self._config_dir.glob("*.yml"))
+        ):
             try:
                 with yaml_file.open("r", encoding="utf-8") as fh:
                     data: Dict[str, Any] = yaml.safe_load(fh) or {}

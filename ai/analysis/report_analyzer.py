@@ -157,16 +157,21 @@ class ReportAnalyzer:
             or critical_value_detector.is_critical(test_name, value, crit)
         )
 
-        # Upgrade status to Critical when safety-net fires
+        # Upgrade status to Critical when safety-net fires but status engine
+        # didn't detect it (e.g. no YAML config for this test).
         if is_crit and st not in (Status.CRITICAL_LOW, Status.CRITICAL_HIGH):
             try:
                 fval = float(value)  # type: ignore[arg-type]
-                if rng and rng.min is not None and fval < rng.min:
+                # Use safety-net's own determination for direction
+                from ai.analysis.critical_value_detector import _safety_net_critical  # noqa: PLC0415
+                sn_status = _safety_net_critical(test_name, fval)
+                if sn_status:
+                    st = sn_status
+                elif rng and rng.min is not None and fval < rng.min:
                     st = Status.CRITICAL_LOW
                 elif rng and rng.max is not None and fval > rng.max:
                     st = Status.CRITICAL_HIGH
-                else:
-                    st = Status.CRITICAL_HIGH  # conservative default
+                # else: leave st unchanged (Unknown) — do not guess direction
             except (TypeError, ValueError):
                 pass
 

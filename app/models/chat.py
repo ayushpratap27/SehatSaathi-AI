@@ -4,10 +4,12 @@ ChatSession and ChatMessage ORM models.
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import Float, ForeignKey, String, Text
+from sqlalchemy import DateTime, Float, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql import func
 
 from app.database.base import Base, TimestampMixin, _new_uuid
 
@@ -47,11 +49,7 @@ class ChatMessage(Base):
     content:      Mapped[str]           = mapped_column(Text, nullable=False)
     sources_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)           # JSON list of citations
     confidence:   Mapped[Optional[float]] = mapped_column(Float, nullable=True)
-
-    # Timestamp (no updated_at — messages are immutable)
-    from sqlalchemy import DateTime
-    from sqlalchemy.sql import func
-    created_at: Mapped[str] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at:   Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     # Relationship
     session: Mapped["ChatSession"] = relationship("ChatSession", back_populates="messages")

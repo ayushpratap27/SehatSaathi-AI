@@ -6,6 +6,7 @@ from typing import List, Optional
 
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.models.report import Report, ReportAnalysis, ReportStatus
 from app.repositories.base_repo import BaseRepository
@@ -23,6 +24,8 @@ class ReportRepository(BaseRepository[Report]):
     ) -> List[Report]:
         result = await db.execute(
             select(Report)
+            # Eagerly load .analysis to avoid lazy-load crash in async context
+            .options(selectinload(Report.analysis))
             .where(and_(Report.user_id == user_id, Report.is_deleted == False))  # noqa: E712
             .order_by(Report.created_at.desc())
             .limit(limit)
@@ -65,8 +68,8 @@ class ReportRepository(BaseRepository[Report]):
 
     async def count_this_month(self, db: AsyncSession, user_id: str) -> int:
         from sqlalchemy import extract  # noqa: PLC0415
-        from datetime import datetime  # noqa: PLC0415
-        now = datetime.utcnow()
+        from datetime import datetime, timezone  # noqa: PLC0415
+        now = datetime.now(timezone.utc)   # timezone-aware — matches DateTime(timezone=True)
         result = await db.execute(
             select(func.count())
             .select_from(Report)
@@ -76,6 +79,23 @@ class ReportRepository(BaseRepository[Report]):
                     Report.is_deleted == False,  # noqa: E712
                     extract("year",  Report.created_at) == now.year,
                     extract("month", Report.created_at) == now.month,
+                )
+            )
+        )
+        return result.scalar_one()
+
+    async def count_by_status(
+        self, db: AsyncSession, user_id: str, status_val: str
+    ) -> int:
+        """Count reports with a specific status (avoids fetching full rows)."""
+        result = await db.execute(
+            select(func.count())
+            .select_from(Report)
+            .where(
+                and_(
+                    Report.user_id == user_id,
+                    Report.is_deleted == False,  # noqa: E712
+                    Report.status == status_val,
                 )
             )
         )

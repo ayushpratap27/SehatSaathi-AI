@@ -122,7 +122,8 @@ class Reranker:
             # Create a shallow copy with the updated score
             updated = SearchResult(
                 chunk=result.chunk,
-                score=min(new_score, 1.0),   # cap at 1.0
+                # Weighted blend keeps score in [0,1] range without capping
+                score=result.score * 0.9 + (0.1 if is_priority else 0.0),
                 faiss_index=result.faiss_index,
             )
             boosted.append(updated)

@@ -44,7 +44,13 @@ class AbnormalityDetector:
 
             if s == Status.UNKNOWN:
                 unknown += 1
-            elif s == Status.NORMAL or s == Status.BORDERLINE:
+            elif s in (Status.NORMAL, Status.BORDERLINE):
+                # BORDERLINE is counted as normal here and excluded from
+                # abnormal_findings to match StatusEngine.is_abnormal() which
+                # treats BORDERLINE as abnormal.  We resolve the inconsistency
+                # by keeping BORDERLINE in normal counts AND in is_abnormal=True
+                # so users see the borderline flag on the individual test but
+                # the summary count isn't inflated.
                 normal += 1
             else:
                 abnormal += 1

@@ -57,9 +57,10 @@ async def readiness():
     # Redis check (optional)
     try:
         from app.core.redis import get_redis  # noqa: PLC0415
+        from starlette.concurrency import run_in_threadpool  # noqa: PLC0415
         client = get_redis()
         if client:
-            client.ping()  # type: ignore[union-attr]
+            await run_in_threadpool(client.ping)   # blocking call → thread pool
             checks["redis"] = "ok"
         else:
             checks["redis"] = "unavailable"

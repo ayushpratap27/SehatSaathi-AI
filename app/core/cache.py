@@ -57,14 +57,18 @@ def cache_delete(key: str) -> None:
 
 
 def cache_delete_pattern(pattern: str) -> None:
-    """Delete all keys matching a glob pattern (use sparingly)."""
+    """Delete all keys matching a glob pattern using SCAN (non-blocking)."""
     from app.core.redis import get_redis  # noqa: PLC0415
     client = get_redis()
     if not client:
         return
     try:
-        keys = client.keys(pattern)  # type: ignore[union-attr]
-        if keys:
-            client.delete(*keys)  # type: ignore[union-attr]
+        cursor = 0
+        while True:
+            cursor, batch = client.scan(cursor, match=pattern, count=100)  # type: ignore[union-attr]
+            if batch:
+                client.delete(*batch)  # type: ignore[union-attr]
+            if cursor == 0:
+                break
     except Exception as exc:
         logger.debug("cache_delete_pattern error: %s", exc)

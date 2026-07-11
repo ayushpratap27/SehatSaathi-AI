@@ -30,7 +30,7 @@ def estimate_tokens(text: str) -> int:
     Returns:
         Estimated token count (integer).
     """
-    return max(1, int(len(text) / _CHARS_PER_TOKEN))
+    return max(0, int(len(text) / _CHARS_PER_TOKEN))
 
 
 @dataclass

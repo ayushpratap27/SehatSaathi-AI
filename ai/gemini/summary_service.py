@@ -97,7 +97,7 @@ class SummaryService:
             medicines=data.get("medicines", []),
             diagnosis=data.get("diagnosis", []),
             follow_up=data.get("follow_up", []),
-            model_used=self._gemini._model_name if hasattr(self._gemini, "_model_name") else "gemini-2.5-flash",
+            model_used=__import__("app.config.settings", fromlist=["get_settings"]).get_settings().GEMINI_MODEL,
             tokens_used=tokens,
         )
 

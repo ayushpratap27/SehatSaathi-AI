@@ -102,12 +102,14 @@ def _extract_gender(text: str) -> Optional[str]:
     m = P.AGE_GENDER_SLASH.search(text)
     if m:
         return normalize_gender(m.group(2))
-    # Standalone "Male" / "Female" on a line with a gender label nearby
+    # Standalone "Male" / "Female" — restrict to header lines only to avoid
+    # false matches from gender-specific reference ranges (e.g. "Male: 13.5–17.5")
+    header_lines = "\n".join(text.split("\n")[:6])
     for pat in (
         re.compile(r"\b(male)\b", re.IGNORECASE),
         re.compile(r"\b(female)\b", re.IGNORECASE),
     ):
-        m = pat.search(text)
+        m = pat.search(header_lines)
         if m:
             return normalize_gender(m.group(1))
     return None

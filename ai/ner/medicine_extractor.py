@@ -31,7 +31,7 @@ _COMMON_MEDICINES = re.compile(
 # Generic API names (capitalize each word, no common word)
 _GENERIC_MEDICINE = re.compile(
     r"\b([A-Z][a-z]{2,}(?:mycin|cillin|statin|prazole|olol|artan|pril|mab|nib|vir|zole|oxacin|"
-    r"azole|mycin|cycline|zepam|dine|pine|amine|azine|dipine|triptan|dronate|"
+    r"azole|cycline|zepam|dine|pine|amine|azine|dipine|triptan|dronate|"
     r"caine|actam|penem|oxetine|setron|lukast)\w*)\b",
 )
 

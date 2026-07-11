@@ -12,9 +12,10 @@ giving scores in [0, 1] for unit vectors.
 
 from __future__ import annotations
 
+import dataclasses
+import json
 import logging
 import os
-import pickle
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -131,17 +132,17 @@ class VectorStore:
 
     def save(self, path: str) -> None:
         """
-        Save the FAISS index and chunk metadata to ``path.*`` files.
+        Save the FAISS index and chunk metadata.
 
         Creates two files:
-        - ``<path>.faiss`` — FAISS binary index
-        - ``<path>.chunks.pkl`` — pickled chunk list
+        - ``<path>.faiss``      — FAISS binary index
+        - ``<path>.chunks.json`` — JSON-serialised chunk list (safe, no pickle)
         """
         import faiss  # noqa: PLC0415
         os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
         faiss.write_index(self._index, f"{path}.faiss")
-        with open(f"{path}.chunks.pkl", "wb") as fh:
-            pickle.dump(self._chunks, fh)
+        with open(f"{path}.chunks.json", "w", encoding="utf-8") as fh:
+            json.dump([dataclasses.asdict(c) for c in self._chunks], fh)
         logger.info("VectorStore saved: %d vectors → %s", self._index.ntotal, path)
 
     @classmethod
@@ -149,27 +150,35 @@ class VectorStore:
         """
         Load a VectorStore from ``path.*`` files saved by :meth:`save`.
 
-        Args:
-            path: Base path (without extension).
-
-        Returns:
-            Loaded :class:`VectorStore`.
-
-        Raises:
-            FileNotFoundError: If the FAISS or chunks file is missing.
+        Supports both the new JSON format and the legacy pickle format
+        (backward compatibility for existing indexes).
         """
         import faiss  # noqa: PLC0415
-        faiss_path  = f"{path}.faiss"
-        chunks_path = f"{path}.chunks.pkl"
-
+        faiss_path = f"{path}.faiss"
         if not os.path.exists(faiss_path):
             raise FileNotFoundError(f"FAISS index not found: {faiss_path}")
-        if not os.path.exists(chunks_path):
-            raise FileNotFoundError(f"Chunks metadata not found: {chunks_path}")
 
         index = faiss.read_index(faiss_path)
-        with open(chunks_path, "rb") as fh:
-            chunks: List[DocumentChunk] = pickle.load(fh)
+
+        # Try JSON first (new format), fall back to pickle for legacy indexes
+        json_path = f"{path}.chunks.json"
+        pkl_path  = f"{path}.chunks.pkl"
+
+        if os.path.exists(json_path):
+            with open(json_path, encoding="utf-8") as fh:
+                raw: List[dict] = json.load(fh)
+            chunks: List[DocumentChunk] = [DocumentChunk(**item) for item in raw]
+        elif os.path.exists(pkl_path):
+            import pickle  # noqa: PLC0415, S403  — legacy support only
+            logger.warning(
+                "Loading legacy pickle chunk file: %s. "
+                "Re-index this document to migrate to the safer JSON format.",
+                pkl_path,
+            )
+            with open(pkl_path, "rb") as fhb:
+                chunks = pickle.load(fhb)  # noqa: S301
+        else:
+            raise FileNotFoundError(f"Chunks file not found at {json_path} or {pkl_path}")
 
         vs = cls.__new__(cls)
         vs._dimension = index.d
@@ -180,7 +189,7 @@ class VectorStore:
 
     def delete(self, path: str) -> None:
         """Remove persisted index files from disk."""
-        for ext in (".faiss", ".chunks.pkl"):
+        for ext in (".faiss", ".chunks.json", ".chunks.pkl"):
             p = Path(f"{path}{ext}")
             if p.exists():
                 p.unlink()

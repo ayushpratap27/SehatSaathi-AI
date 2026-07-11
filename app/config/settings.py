@@ -7,6 +7,7 @@ All values can be overridden via environment variables or a .env file.
 from functools import lru_cache
 from typing import List
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -36,7 +37,7 @@ class Settings(BaseSettings):
     )
     APP_VERSION: str = "0.1.0"
     ENV: str = "development"
-    DEBUG: bool = True
+    DEBUG: bool = False   # never default to True — leaks SQL and stack traces
 
     # ------------------------------------------------------------------ #
     # Server
@@ -126,6 +127,18 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "change-this-to-a-long-random-secret-in-production"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
+    @field_validator("SECRET_KEY")
+    @classmethod
+    def validate_secret_key(cls, v: str) -> str:
+        """Warn loudly if the default insecure key is used."""
+        import logging  # noqa: PLC0415
+        if v == "change-this-to-a-long-random-secret-in-production" or len(v) < 32:
+            logging.getLogger(__name__).warning(
+                "SECRET_KEY is using the default insecure value. "
+                "Set a strong random key with: openssl rand -hex 32"
+            )
+        return v
 
 
 @lru_cache()

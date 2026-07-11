@@ -46,7 +46,7 @@ def setup_logging(
             os.makedirs(log_dir, exist_ok=True)
 
     root_logger = logging.getLogger()
-    root_logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
+    root_logger.setLevel(getattr(logging, (log_level or "INFO").upper(), logging.INFO))
 
     # Remove any handlers that may have been attached by imported libraries
     root_logger.handlers.clear()

@@ -140,9 +140,9 @@ class TestTokenCounter:
         from ai.utils.token_counter import estimate_tokens
         assert estimate_tokens("Hello world") > 0
 
-    def test_empty_string_returns_one(self) -> None:
+    def test_empty_string_returns_zero(self) -> None:
         from ai.utils.token_counter import estimate_tokens
-        assert estimate_tokens("") == 1
+        assert estimate_tokens("") == 0
 
     def test_token_usage_accumulates(self) -> None:
         from ai.utils.token_counter import TokenUsage

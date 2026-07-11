@@ -18,6 +18,10 @@ from app.auth.jwt_handler import (
     hash_password,
     verify_password,
 )
+
+# Pre-hashed dummy password used so verify_password() always runs,
+# preventing timing side-channels that reveal whether an email is registered.
+_DUMMY_HASH: str = hash_password("sehat-saathi-dummy-password-never-matches-any-real-hash")
 from app.models.user import RefreshToken, User
 from app.repositories.user_repo import refresh_token_repository, user_repository
 from app.schemas.auth import LoginRequest, RegisterRequest, TokenPair
@@ -46,7 +50,11 @@ class UserService:
 
     async def login(self, db: AsyncSession, req: LoginRequest) -> TokenPair:
         user = await user_repository.get_by_email(db, req.email)
-        if not user or not verify_password(req.password, user.hashed_password):
+        # Always call verify_password — prevents timing side-channel that
+        # reveals whether a given email address is registered.
+        check_hash = user.hashed_password if user else _DUMMY_HASH
+        password_ok = verify_password(req.password, check_hash)
+        if not user or not password_ok:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password.")
         if not user.is_active:
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Account is inactive.")
@@ -72,8 +80,10 @@ class UserService:
 
     async def logout(self, db: AsyncSession, refresh_token_str: str) -> None:
         payload = decode_refresh_token(refresh_token_str)
-        if payload:
-            await refresh_token_repository.revoke(db, payload.get("jti", ""))
+        if not payload:
+            logger.info("Logout called with invalid or expired refresh token — no DB action taken")
+            return
+        await refresh_token_repository.revoke(db, payload.get("jti", ""))
 
     async def _issue_tokens(self, db: AsyncSession, user: User) -> TokenPair:
         access  = create_access_token(user.id, user.email)

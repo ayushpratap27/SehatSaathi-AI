@@ -127,9 +127,10 @@ class ReferenceRange:
                 return "Normal"
             # Map specific expected/actual combos to meaningful labels
             if self.expected == "negative":
-                return "Positive" if "positive" in val_normalised else "Abnormal"
+                return "Positive" if val_normalised == "positive" else "Abnormal"
             if self.expected in ("non-reactive",):
-                return "Reactive" if "reactive" in val_normalised else "Abnormal"
+                # Use exact match, NOT substring: "reactive" in "non-reactive" is True
+                return "Reactive" if val_normalised == "reactive" else "Abnormal"
             return "Abnormal"
 
         # --- Numeric comparison ---
@@ -139,10 +140,17 @@ class ReferenceRange:
             return "Unknown"
 
         if self.low is not None and self.high is not None:
+            spread = self.high - self.low
             if fval < self.low:
-                return "Critical" if fval < self.low * _CRITICAL_LOW_FACTOR else "Low"
+                # Critical when value is far below the range (> 30% of range spread)
+                if spread > 0 and (self.low - fval) / spread >= _CRITICAL_LOW_FACTOR:
+                    return "Critical"
+                return "Low"
             if fval > self.high:
-                return "Critical" if fval > self.high * _CRITICAL_HIGH_FACTOR else "High"
+                # Critical when value is far above the range (> 30% of range spread)
+                if spread > 0 and (fval - self.high) / spread >= _CRITICAL_HIGH_FACTOR:
+                    return "Critical"
+                return "High"
             return "Normal"
 
         if self.low is not None:      # only lower bound (> X)
@@ -150,7 +158,7 @@ class ReferenceRange:
 
         if self.high is not None:     # only upper bound (< X)
             if fval > self.high:
-                return "Critical" if fval > self.high * _CRITICAL_HIGH_FACTOR else "High"
+                return "Critical" if self.high > 0 and fval > self.high * (1 + _CRITICAL_HIGH_FACTOR) else "High"
             return "Normal"
 
         return "Unknown"

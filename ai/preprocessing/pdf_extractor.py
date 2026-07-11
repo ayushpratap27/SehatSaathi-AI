@@ -84,17 +84,16 @@ def extract_with_pymupdf(pdf_path: "str | Path") -> Dict[str, Any]:
     path = Path(pdf_path)
     logger.info("PyMuPDF extracting: %s", path.name)
 
-    doc = fitz.open(str(path))
     pages_text: List[str] = []
     page_image_counts: List[int] = []
 
-    for page in doc:
-        pages_text.append(page.get_text("text"))
-        page_image_counts.append(len(page.get_images()))
+    with fitz.open(str(path)) as doc:
+        for page in doc:
+            pages_text.append(page.get_text("text"))
+            page_image_counts.append(len(page.get_images()))
 
-    full_text = "\n\n".join(pages_text)
-    metadata: Dict[str, Any] = dict(doc.metadata) if doc.metadata else {}
-    doc.close()
+        full_text = "\n\n".join(pages_text)
+        metadata: Dict[str, Any] = dict(doc.metadata) if doc.metadata else {}
 
     is_scanned = _detect_scanned(pages_text, page_image_counts)
     logger.info(

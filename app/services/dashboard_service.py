@@ -24,13 +24,11 @@ class DashboardService:
     ) -> DashboardResponse:
         total         = await report_repository.count_by_user(db, user_id)
         this_month    = await report_repository.count_this_month(db, user_id)
-        recent_raw    = await report_repository.get_by_user(db, user_id, limit=5)
-
-        # Count completed analyses
-        completed = sum(
-            1 for r in await report_repository.get_by_user(db, user_id, limit=1000)
-            if r.status == ReportStatus.DONE.value
+        # Single COUNT query — avoids fetching up to 1,000 full rows
+        completed     = await report_repository.count_by_status(
+            db, user_id, ReportStatus.DONE.value
         )
+        recent_raw    = await report_repository.get_by_user(db, user_id, limit=5)
 
         recent: List[RecentReport] = [
             RecentReport(

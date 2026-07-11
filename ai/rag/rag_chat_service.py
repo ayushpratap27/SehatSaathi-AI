@@ -89,6 +89,9 @@ class RAGChatService:
 
         k = top_k or settings.RAG_TOP_K
 
+        # Trim history at the service boundary to prevent excessive memory use
+        trimmed_history = (conversation_history or [])[-settings.RAG_CONVERSATION_HISTORY_LIMIT:]
+
         # --- Step 1: Retrieve ---
         try:
             raw_results = await self._retriever.retrieve(
@@ -120,7 +123,7 @@ class RAGChatService:
         prompt = self._ctx_builder.build(
             question=question,
             results=reranked,
-            history=conversation_history,
+            history=trimmed_history,
         )
 
         # --- Step 4: Generate answer ---

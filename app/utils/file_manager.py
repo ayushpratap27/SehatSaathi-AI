@@ -118,10 +118,12 @@ def cleanup_temp_files(directory: str, max_age_hours: float = 24.0) -> int:
 
     for item in target_dir.iterdir():
         if item.is_file() and item.stat().st_mtime < cutoff:
-            item.unlink()
-            deleted += 1
-            logger.debug("Removed stale temp file: %s", item)
-
+                try:
+                    item.unlink()
+                    deleted += 1
+                    logger.debug("Removed stale temp file: %s", item)
+                except OSError as exc:
+                    logger.warning("Could not delete stale temp file %s: %s", item, exc)
     if deleted:
         logger.info("Cleaned up %d temp file(s) from '%s'", deleted, directory)
 
