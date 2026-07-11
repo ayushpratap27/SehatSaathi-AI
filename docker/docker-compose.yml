@@ -1,0 +1,83 @@
+# ===========================================================================
+# SehatSaathi-AI — Docker Compose (development)
+# ===========================================================================
+# Usage:
+#   docker compose up --build        # start all services
+#   docker compose down              # stop all services
+#   docker compose logs -f backend   # tail backend logs
+# ===========================================================================
+
+services:
+
+  # --------------------------------------------------------------------------
+  # Backend — FastAPI
+  # --------------------------------------------------------------------------
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: sehat_saathi_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ..:/app                         # live-reload source in dev
+      - sehat_data:/app/data
+      - sehat_logs:/app/logs
+    environment:
+      - ENV=development
+      - DEBUG=true
+      - DATABASE_URL=postgresql+psycopg2://sehat:saathi@db:5432/sehat_saathi
+      - LOG_LEVEL=INFO
+    depends_on:
+      db:
+        condition: service_healthy
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+
+  # --------------------------------------------------------------------------
+  # Frontend — Streamlit
+  # --------------------------------------------------------------------------
+  frontend:
+    image: python:3.12-slim
+    container_name: sehat_saathi_frontend
+    working_dir: /app
+    ports:
+      - "8501:8501"
+    volumes:
+      - ..:/app
+    environment:
+      - BACKEND_URL=http://backend:8000
+    command: >
+      sh -c "pip install streamlit --quiet &&
+             streamlit run frontend/app.py
+             --server.address 0.0.0.0
+             --server.port 8501"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # --------------------------------------------------------------------------
+  # Database — PostgreSQL (production-ready from the start)
+  # --------------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: sehat_saathi_db
+    environment:
+      POSTGRES_USER: sehat
+      POSTGRES_PASSWORD: saathi
+      POSTGRES_DB: sehat_saathi
+    ports:
+      - "5432:5432"
+    volumes:
+      - sehat_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sehat -d sehat_saathi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  sehat_data:
+  sehat_logs:
+  sehat_postgres:
