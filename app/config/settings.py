@@ -62,7 +62,8 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------ #
     # Database  (SQLite for dev, PostgreSQL for production)
     # ------------------------------------------------------------------ #
-    DATABASE_URL: str = "sqlite:///./sehat_saathi.db"
+    DATABASE_URL: str = "sqlite+aiosqlite:///./sehat_saathi.db"
+    # PostgreSQL (production): postgresql+asyncpg://user:pass@host:5432/dbname
 
     # ------------------------------------------------------------------ #
     # File Storage
