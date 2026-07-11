@@ -14,8 +14,8 @@ SehatSaathi-AI helps patients understand complex medical reports in plain, simpl
 |-------|-------------|--------|
 | **Phase 1** | Foundation & project scaffolding | ✅ Complete |
 | **Phase 2** | Document ingestion pipeline (PDF + OCR) | ✅ Complete |
-| Phase 3 | Medical NLP & lab value extraction | 🔜 Next |
-| Phase 4 | Vector store & RAG pipeline | 🔜 Planned |
+| **Phase 3** | Medical information extraction (NER + structured JSON) | ✅ Complete |
+| Phase 4 | Vector store & RAG pipeline | 🔜 Next |
 | Phase 5 | AI report understanding & summaries | 🔜 Planned |
 | Phase 6 | Intelligent chat assistant | 🔜 Planned |
 | Phase 7 | Streamlit MVP frontend | 🔜 Planned |
@@ -149,33 +149,52 @@ The Streamlit app will open at http://localhost:8501
 
 ---
 
-## API Overview (Phase 2)
+## API Overview (Phase 3)
 
 | Method | Endpoint | Description | Status |
 |--------|----------|-------------|--------|
 | GET | `/` | Application info | ✅ |
 | GET | `/health` | Health check | ✅ |
 | POST | `/api/v1/upload/` | Upload & store a medical report | ✅ Phase 2 |
-| GET | `/api/v1/upload/status/{id}` | Processing status | ✅ Phase 2 |
-| **POST** | **`/api/v1/report/extract`** | **Extract text from a report** | **✅ Phase 2** |
-| GET | `/api/v1/report/{id}` | Get structured report data | 🔜 Phase 3 |
-| GET | `/api/v1/report/{id}/summary` | Report summary | 🔜 Phase 5 |
-| GET | `/api/v1/analysis/{id}/entities` | Medical entities | 🔜 Phase 3 |
-| GET | `/api/v1/analysis/{id}/lab-values` | Lab results | 🔜 Phase 3 |
+| POST | `/api/v1/report/extract` | Extract text from a report | ✅ Phase 2 |
+| **POST** | **`/api/v1/report/parse`** | **Structured JSON from report** | **✅ Phase 3** |
+| GET | `/api/v1/report/{id}` | Get structured report data | 🔜 Phase 4 |
+| GET | `/api/v1/analysis/{id}/entities` | Medical entities | 🔜 Phase 4 |
+| GET | `/api/v1/analysis/{id}/lab-values` | Lab results | 🔜 Phase 4 |
 | POST | `/api/v1/chat/session` | Create chat session | 🔜 Phase 6 |
-| POST | `/api/v1/chat/session/{id}/message` | Chat Q&A | 🔜 Phase 6 |
 | POST | `/api/v1/auth/register` | Register user | 🔜 Phase 8 |
-| POST | `/api/v1/auth/login` | Login | 🔜 Phase 8 |
 
-### Testing with Swagger UI
+### `/parse` endpoint — two ways to call it
 
-1. Start the backend: `uvicorn main:app --reload`
-2. Open http://localhost:8000/docs
-3. Try `POST /api/v1/upload/` — click **Try it out**, upload any PDF or image
-4. Try `POST /api/v1/report/extract` — upload a PDF to get extracted text back
+**Option A — Upload a file:**
+```bash
+curl -X POST http://localhost:8000/api/v1/report/parse \
+  -F "file=@blood_test.pdf"
+```
 
-**Supported file formats:** PDF, PNG, JPG, JPEG, TIFF  
-**Maximum file size:** 20 MB
+**Option B — Send extracted text directly (from Phase 2 `/extract`):**
+```bash
+curl -X POST http://localhost:8000/api/v1/report/parse \
+  -F "text=Patient Name: John Doe\nHemoglobin\n12.4 g/dL\nReference\n13.5-17.5"
+```
+
+### Example structured JSON response
+
+```json
+{
+  "patient": { "name": "John Doe", "age": 45, "gender": "Male" },
+  "hospital": { "name": "ABC Hospital" },
+  "doctor": { "name": null },
+  "tests": [
+    { "test_name": "Hemoglobin", "value": 12.4, "unit": "g/dL",
+      "reference_range": "13.5-17.5", "status": "Low" },
+    { "test_name": "WBC Count", "value": 11200, "unit": "/uL",
+      "reference_range": "4000-11000", "status": "High" }
+  ],
+  "diagnosis": ["Iron Deficiency Anemia"],
+  "medicines": [{ "name": "Ferrous Sulfate", "dosage": "150mg", "frequency": "Once daily" }]
+}
+```
 
 ---
 

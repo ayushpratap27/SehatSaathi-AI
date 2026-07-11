@@ -50,12 +50,17 @@ numpy>=1.26.0,<3.0.0                 # array operations for OCR pipeline
 # Linux GPU (CUDA 11.7):   pip install paddlepaddle-gpu==2.6.1 paddleocr
 
 # ---------------------------------------------------------------------------
-# Phase 3: Medical NLP  (uncomment when starting Phase 3)
+# Phase 3: Medical NLP & NER  ✅ Active
 # ---------------------------------------------------------------------------
-# spacy>=3.8.0,<4.0.0
-# scispacy>=0.5.5,<1.0.0
-# # After installing scispacy, run:
-# # python -m spacy download en_core_sci_md
+rapidfuzz>=3.9.0,<4.0.0              # fuzzy test-name matching
+pandas>=2.2.0,<3.0.0                 # tabular data manipulation (lab tables)
+
+# spaCy — run: python -m spacy download en_core_web_sm
+spacy>=3.7.0,<4.0.0
+
+# SciSpaCy (optional — improves biomedical NER accuracy):
+#   pip install scispacy
+#   pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.4/en_core_sci_md-0.5.4.tar.gz
 
 # ---------------------------------------------------------------------------
 # Phase 4: Vector store & RAG  (uncomment when starting Phase 4)
