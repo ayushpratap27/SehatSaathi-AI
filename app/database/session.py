@@ -21,18 +21,26 @@ from app.config.settings import get_settings
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
-# Normalise the DATABASE_URL scheme so both plain "postgresql://" and
-# "postgresql+asyncpg://" work without changing Render env vars.
-_db_url = settings.DATABASE_URL
-if _db_url.startswith("postgresql://") or _db_url.startswith("postgres://"):
-    _db_url = _db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
-    _db_url = _db_url.replace("postgres://", "postgresql+asyncpg://", 1)
+# ---------------------------------------------------------------------------
+# Normalise DATABASE_URL for asyncpg compatibility
+# ---------------------------------------------------------------------------
+import re as _re  # noqa: PLC0415
 
-# Remove channel_binding param — asyncpg does not support it
-if "channel_binding" in _db_url:
-    import re  # noqa: PLC0415
-    _db_url = re.sub(r"[&?]channel_binding=[^&]*", "", _db_url)
-    _db_url = re.sub(r"\?&", "?", _db_url)   # clean up ?& edge case
+_db_url = settings.DATABASE_URL
+
+# 1. Fix scheme — asyncpg requires postgresql+asyncpg://
+_db_url = _re.sub(r"^postgres(ql)?://", "postgresql+asyncpg://", _db_url)
+
+# 2. Strip query params that asyncpg does not understand
+#    (sslmode, channel_binding are psycopg2/libpq-only)
+_pg_ssl = False
+if "sslmode=require" in _db_url or "sslmode=verify" in _db_url:
+    _pg_ssl = True   # we'll pass ssl=True via connect_args instead
+for _param in ("sslmode", "channel_binding"):
+    _db_url = _re.sub(rf"[&?]{_param}=[^&]*", "", _db_url)
+# Clean up any trailing ? or ?&
+_db_url = _re.sub(r"\?$", "", _db_url)
+_db_url = _re.sub(r"\?&", "?", _db_url)
 
 # ------------------------------------------------------------------ #
 # Engine
@@ -40,9 +48,6 @@ if "channel_binding" in _db_url:
 
 if "sqlite" in _db_url:
     # SQLite: use StaticPool so all sessions share ONE connection.
-    # This completely eliminates "database is locked" errors because
-    # writes are serialised at the connection level.  Safe for single-
-    # process development; switch to PostgreSQL for production.
     from sqlalchemy.pool import StaticPool  # noqa: PLC0415
     engine = create_async_engine(
         _db_url,
@@ -51,10 +56,15 @@ if "sqlite" in _db_url:
         poolclass=StaticPool,
     )
 else:
-    # PostgreSQL (production): use default async pool
+    # PostgreSQL (production)
+    _pg_connect_args: dict = {}
+    if _pg_ssl:
+        import ssl as _ssl  # noqa: PLC0415
+        _pg_connect_args["ssl"] = _ssl.create_default_context()
     engine = create_async_engine(
         _db_url,
         echo=settings.DEBUG,
+        connect_args=_pg_connect_args,
     )
 
 # ------------------------------------------------------------------ #
