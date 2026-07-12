@@ -49,10 +49,23 @@ class Settings(BaseSettings):
     # CORS
     # ------------------------------------------------------------------ #
     ALLOWED_ORIGINS: List[str] = [
-        "http://localhost:8501",  # Streamlit dev
-        "http://localhost:3000",  # React (future)
+        "http://localhost:8501",
+        "http://localhost:3000",
         "http://127.0.0.1:8501",
+        "http://127.0.0.1:3000",
     ]
+    # Additional origins from env (comma-separated). Set FRONTEND_URL on Render.
+    FRONTEND_URL: str = ""
+
+    @property
+    def cors_origins(self) -> List[str]:
+        origins = list(self.ALLOWED_ORIGINS)
+        if self.FRONTEND_URL:
+            for url in self.FRONTEND_URL.split(","):
+                url = url.strip()
+                if url and url not in origins:
+                    origins.append(url)
+        return origins
 
     # ------------------------------------------------------------------ #
     # Logging
