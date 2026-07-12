@@ -27,6 +27,10 @@ COPY --chown=appuser:appuser . .
 
 RUN mkdir -p data/uploads data/processed data/temp data/vector_stores logs
 
+# Pre-download the embedding model so it's baked into the image.
+# This avoids a ~400MB download at runtime on every cold start.
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('allenai-specter')"
+
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
