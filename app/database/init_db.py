@@ -28,7 +28,7 @@ async def init_db() -> None:
     import app.models  # noqa: F401  # triggers __init__.py imports
 
     async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(Base.metadata.create_all, checkfirst=True)
     logger.info("Database tables created / verified.")
 
 
