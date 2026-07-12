@@ -21,18 +21,31 @@ from app.config.settings import get_settings
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
+# Normalise the DATABASE_URL scheme so both plain "postgresql://" and
+# "postgresql+asyncpg://" work without changing Render env vars.
+_db_url = settings.DATABASE_URL
+if _db_url.startswith("postgresql://") or _db_url.startswith("postgres://"):
+    _db_url = _db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    _db_url = _db_url.replace("postgres://", "postgresql+asyncpg://", 1)
+
+# Remove channel_binding param — asyncpg does not support it
+if "channel_binding" in _db_url:
+    import re  # noqa: PLC0415
+    _db_url = re.sub(r"[&?]channel_binding=[^&]*", "", _db_url)
+    _db_url = re.sub(r"\?&", "?", _db_url)   # clean up ?& edge case
+
 # ------------------------------------------------------------------ #
 # Engine
 # ------------------------------------------------------------------ #
 
-if "sqlite" in settings.DATABASE_URL:
+if "sqlite" in _db_url:
     # SQLite: use StaticPool so all sessions share ONE connection.
     # This completely eliminates "database is locked" errors because
     # writes are serialised at the connection level.  Safe for single-
     # process development; switch to PostgreSQL for production.
     from sqlalchemy.pool import StaticPool  # noqa: PLC0415
     engine = create_async_engine(
-        settings.DATABASE_URL,
+        _db_url,
         echo=settings.DEBUG,
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
@@ -40,7 +53,7 @@ if "sqlite" in settings.DATABASE_URL:
 else:
     # PostgreSQL (production): use default async pool
     engine = create_async_engine(
-        settings.DATABASE_URL,
+        _db_url,
         echo=settings.DEBUG,
     )
 
@@ -56,7 +69,7 @@ async def configure_sqlite() -> None:
     preventing "database is locked" errors. Must be called once at
     application startup, before the first request is served.
     """
-    if "sqlite" not in settings.DATABASE_URL:
+    if "sqlite" not in _db_url:
         return
     from sqlalchemy import text  # noqa: PLC0415
     async with engine.begin() as conn:
